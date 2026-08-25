@@ -2,6 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import {
+  Briefcase,
+  Search,
+  Users,
+} from "lucide-react";
+
+import {
   Card,
   CardContent,
   CardHeader,
@@ -9,11 +15,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Briefcase,
-  Search,
-  Users,
-} from "lucide-react";
+
+type ApplicationStatus =
+  | "Applied"
+  | "Reviewing"
+  | "Interview"
+  | "Hired"
+  | "Rejected";
 
 type Application = {
   id: string;
@@ -23,7 +31,7 @@ type Application = {
   role: string;
   company?: string;
   matchScore: number;
-  status: string;
+  status: ApplicationStatus;
   experience: string;
   skills: string[];
   appliedAt?: string;
@@ -68,6 +76,14 @@ const defaultApplications: Application[] = [
   },
 ];
 
+const statusOptions: ApplicationStatus[] = [
+  "Applied",
+  "Reviewing",
+  "Interview",
+  "Hired",
+  "Rejected",
+];
+
 export default function EmployerApplicationsPage() {
   const [applications, setApplications] =
     useState<Application[]>(defaultApplications);
@@ -79,33 +95,88 @@ export default function EmployerApplicationsPage() {
       localStorage.getItem("candidateApplications");
 
     if (!storedApplications) {
+      setApplications(defaultApplications);
       return;
     }
 
     try {
-      const parsed = JSON.parse(storedApplications);
+      const parsed: unknown = JSON.parse(storedApplications);
 
-      if (Array.isArray(parsed)) {
-        const existingIds = new Set(
-          defaultApplications.map(
-            (application) => application.id
-          )
-        );
-
-        const newApplications = parsed.filter(
-          (application: Application) =>
-            !existingIds.has(application.id)
-        );
-
-        setApplications([
-          ...newApplications,
-          ...defaultApplications,
-        ]);
+      if (!Array.isArray(parsed)) {
+        setApplications(defaultApplications);
+        return;
       }
+
+      const stored = parsed as Application[];
+
+      const storedById = new Map(
+        stored.map((application) => [
+          application.id,
+          application,
+        ])
+      );
+
+      const mergedDefaultApplications =
+        defaultApplications.map((application) => {
+          const storedApplication =
+            storedById.get(application.id);
+
+          if (!storedApplication) {
+            return application;
+          }
+
+          return {
+            ...application,
+            ...storedApplication,
+            status: storedApplication.status,
+          };
+        });
+
+      const defaultIds = new Set(
+        defaultApplications.map(
+          (application) => application.id
+        )
+      );
+
+      const customApplications = stored.filter(
+        (application) => !defaultIds.has(application.id)
+      );
+
+      setApplications([
+        ...customApplications,
+        ...mergedDefaultApplications,
+      ]);
     } catch {
       setApplications(defaultApplications);
     }
   }, []);
+
+  function updateApplicationStatus(
+    applicationId: string,
+    newStatus: ApplicationStatus
+  ) {
+    const updatedApplications = applications.map(
+      (application) =>
+        application.id === applicationId
+          ? {
+              ...application,
+              status: newStatus,
+            }
+          : application
+    );
+
+    setApplications(updatedApplications);
+
+    /*
+     * Bütün başvuruları kaydediyoruz.
+     * Böylece default/demo başvurularının da
+     * değiştirilmiş status bilgisi korunuyor.
+     */
+    localStorage.setItem(
+      "candidateApplications",
+      JSON.stringify(updatedApplications)
+    );
+  }
 
   const filteredApplications = useMemo(() => {
     const searchText = search.trim().toLowerCase();
@@ -139,6 +210,10 @@ export default function EmployerApplicationsPage() {
     (application) => application.status === "Interview"
   ).length;
 
+  const hiredCount = applications.filter(
+    (application) => application.status === "Hired"
+  ).length;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -161,7 +236,7 @@ export default function EmployerApplicationsPage() {
       </div>
 
       {/* Overview */}
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>
             <CardTitle className="text-base font-medium">
@@ -212,6 +287,24 @@ export default function EmployerApplicationsPage() {
 
             <p className="mt-1 text-sm text-muted-foreground">
               Candidates in interview stage
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base font-medium">
+              Hired
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <p className="text-4xl font-semibold">
+              {hiredCount}
+            </p>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              Successful applications
             </p>
           </CardContent>
         </Card>
@@ -291,7 +384,7 @@ export default function EmployerApplicationsPage() {
                       </div>
                     </div>
 
-                    {/* Match + Status */}
+                    {/* Status + Match */}
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
                       <div className="flex items-center gap-2">
                         <Badge>
@@ -300,22 +393,49 @@ export default function EmployerApplicationsPage() {
 
                         <Badge
                           variant={
-                            application.status ===
-                            "Interview"
+                            application.status === "Hired"
                               ? "default"
-                              : application.status ===
-                                  "Reviewing"
-                                ? "secondary"
-                                : "outline"
+                              : application.status === "Rejected"
+                                ? "destructive"
+                                : application.status ===
+                                    "Interview"
+                                  ? "default"
+                                  : application.status ===
+                                      "Reviewing"
+                                    ? "secondary"
+                                    : "outline"
                           }
                         >
                           {application.status}
                         </Badge>
                       </div>
 
-                      <Button variant="outline">
-                        View Candidate
-                      </Button>
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                        <select
+                          value={application.status}
+                          onChange={(event) =>
+                            updateApplicationStatus(
+                              application.id,
+                              event.target
+                                .value as ApplicationStatus
+                            )
+                          }
+                          className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                        >
+                          {statusOptions.map((status) => (
+                            <option
+                              key={status}
+                              value={status}
+                            >
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+
+                        <Button variant="outline">
+                          View Candidate
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
