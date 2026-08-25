@@ -8,6 +8,9 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { recommendedJobs } from "@/data/jobs";
+import { recentApplications } from "@/data/applications";
+import { skillGaps } from "@/data/skill-gaps";
 
 export default function CandidateDashboard() {
   return (
@@ -52,10 +55,20 @@ export default function CandidateDashboard() {
           </CardHeader>
 
           <CardContent>
-            <p className="text-3xl font-semibold">92%</p>
+            <div className="flex items-end justify-between">
+              <p className="text-4xl font-semibold tracking-tight">
+                92%
+              </p>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              12 matching jobs
+              <Badge variant="secondary">
+                Excellent match
+              </Badge>
+            </div>
+
+            <Progress value={92} className="mt-4" />
+
+            <p className="mt-3 text-sm text-muted-foreground">
+              12 jobs strongly aligned with your current profile.
             </p>
           </CardContent>
         </Card>
@@ -68,10 +81,20 @@ export default function CandidateDashboard() {
           </CardHeader>
 
           <CardContent>
-            <p className="text-3xl font-semibold">76%</p>
+            <div className="flex items-end justify-between">
+              <p className="text-4xl font-semibold tracking-tight">
+                76%
+              </p>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              8 potential opportunities
+              <Badge variant="outline">
+                Room to improve
+              </Badge>
+            </div>
+
+            <Progress value={76} className="mt-4" />
+
+            <p className="mt-3 text-sm text-muted-foreground">
+              Your match could increase by up to 15% by improving 3 skills.
             </p>
           </CardContent>
         </Card>
@@ -79,100 +102,162 @@ export default function CandidateDashboard() {
 
       {/* Recommended Jobs */}
       <section>
-        <div className="mb-4">
-          <h2 className="text-xl font-semibold">
-            Recommended Jobs
-          </h2>
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-semibold">
+              Recommended Jobs
+            </h2>
 
-          <p className="text-sm text-muted-foreground">
-            Jobs that match your skills and experience.
-          </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Jobs that match your skills and career goals.
+            </p>
+          </div>
+
+          <Button variant="ghost" className="hidden sm:flex">
+            View all
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
         </div>
 
         <div className="space-y-3">
-          <Card>
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <h3 className="font-medium">
-                  Frontend Developer
-                </h3>
+          {recommendedJobs.map((job) => (
+            <Card key={job.id}>
+              <CardContent className="p-5">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="space-y-3">
+                    <div>
+                      <h3 className="font-semibold">
+                        {job.title}
+                      </h3>
 
-                <p className="text-sm text-muted-foreground">
-                  Tech Company
-                </p>
-              </div>
+                      <p className="text-sm text-muted-foreground">
+                        {job.company}
+                      </p>
+                    </div>
 
-              <Badge>94% Match</Badge>
-            </CardContent>
-          </Card>
+                    <div className="flex flex-wrap gap-2">
+                      {job.skills.map((skill) => (
+                        <Badge key={skill} variant="secondary">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
 
-          <Card>
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <h3 className="font-medium">
-                  React Developer
-                </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {job.workType} · {job.employmentType}
+                    </p>
+                  </div>
 
-                <p className="text-sm text-muted-foreground">
-                  Software Company
-                </p>
-              </div>
+                  <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
+                    <Badge>
+                      {job.matchScore}% Match
+                    </Badge>
 
-              <Badge>91% Match</Badge>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="flex items-center justify-between p-5">
-              <div>
-                <h3 className="font-medium">
-                  UI Engineer
-                </h3>
-
-                <p className="text-sm text-muted-foreground">
-                  Digital Company
-                </p>
-              </div>
-
-              <Badge>87% Match</Badge>
-            </CardContent>
-          </Card>
+                    <Button variant="outline" size="sm">
+                      View Job
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        <Button variant="outline" className="mt-4">
-  View all jobs
-  <ArrowRight className="ml-2 h-4 w-4" />
-</Button>
+        <Button
+          variant="outline"
+          className="mt-4 w-full sm:hidden"
+        >
+          View all jobs
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       </section>
 
       {/* Applications + Skill Gap */}
       <section className="grid gap-4 md:grid-cols-2">
+        {/* Applications */}
         <Card>
-          <CardHeader>
-            <CardTitle>Applications</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Applications</CardTitle>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Your recent job applications.
+              </p>
+            </div>
+
+            <span className="text-2xl font-semibold">
+              5
+            </span>
           </CardHeader>
 
-          <CardContent>
-            <p className="text-3xl font-semibold">5</p>
+          <CardContent className="space-y-4">
+  {recentApplications.map((application) => (
+    <div
+      key={application.id}
+      className="flex items-center justify-between gap-4"
+    >
+      <div>
+        <p className="text-sm font-medium">
+          {application.jobTitle}
+        </p>
 
-            <p className="text-sm text-muted-foreground">
-              Active applications
-            </p>
-          </CardContent>
+        <p className="text-xs text-muted-foreground">
+          {application.company}
+        </p>
+      </div>
+
+      <Badge
+        variant={
+          application.status === "Interview"
+            ? "secondary"
+            : "outline"
+        }
+      >
+        {application.status}
+      </Badge>
+    </div>
+  ))}
+
+  <Button variant="outline" className="w-full">
+    View applications
+    <ArrowRight className="ml-2 h-4 w-4" />
+  </Button>
+</CardContent>
         </Card>
 
+        {/* Skill Gap */}
         <Card>
           <CardHeader>
             <CardTitle>Skill Gap</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-3xl font-semibold">3</p>
 
             <p className="text-sm text-muted-foreground">
-              Skills you could improve
+              Skills that could improve your job matches.
             </p>
-          </CardContent>
+          </CardHeader>
+
+          <CardContent className="space-y-4">
+  {skillGaps.map((skill) => (
+    <div key={skill.id}>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-sm font-medium">
+          {skill.name}
+        </span>
+
+        <span className="text-xs text-muted-foreground">
+          {skill.score}%
+        </span>
+      </div>
+
+      <Progress value={skill.score} />
+    </div>
+  ))}
+
+  <Button variant="outline" className="w-full">
+    View Skill Gap
+    <ArrowRight className="ml-2 h-4 w-4" />
+  </Button>
+</CardContent>
         </Card>
       </section>
     </div>
