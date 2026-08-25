@@ -37,6 +37,10 @@ const defaultJobs: EmployerJob[] = [
     matchRate: 92,
     status: "Published",
     workType: "Remote",
+    employmentType: "Full-time",
+    description:
+      "We are looking for a frontend developer to build modern and responsive web applications.",
+    skills: ["React", "Next.js", "TypeScript"],
   },
   {
     id: "employer-job-2",
@@ -45,6 +49,10 @@ const defaultJobs: EmployerJob[] = [
     matchRate: 88,
     status: "Published",
     workType: "Hybrid",
+    employmentType: "Full-time",
+    description:
+      "Join our frontend team and help us create scalable React applications.",
+    skills: ["React", "JavaScript", "CSS"],
   },
   {
     id: "employer-job-3",
@@ -53,6 +61,10 @@ const defaultJobs: EmployerJob[] = [
     matchRate: 84,
     status: "Draft",
     workType: "Remote",
+    employmentType: "Contract",
+    description:
+      "Work on user interfaces and improve the experience of our digital products.",
+    skills: ["React", "Tailwind", "UI/UX"],
   },
 ];
 
@@ -63,15 +75,31 @@ export default function EmployerJobsPage() {
     const savedJobs = localStorage.getItem("employerJobs");
 
     if (!savedJobs) {
+      setJobs(defaultJobs);
       return;
     }
 
     try {
-      const parsedJobs = JSON.parse(savedJobs);
+      const parsedJobs: unknown = JSON.parse(savedJobs);
 
-      if (Array.isArray(parsedJobs)) {
-        setJobs([...parsedJobs, ...defaultJobs]);
+      if (!Array.isArray(parsedJobs)) {
+        setJobs(defaultJobs);
+        return;
       }
+
+      const customJobs = parsedJobs as EmployerJob[];
+
+      // Özel ilanları önce al, varsayılanlarla aynı ID'li olanları
+      // tekrar ekleme.
+      const customJobIds = new Set(
+        customJobs.map((job) => job.id)
+      );
+
+      const uniqueDefaultJobs = defaultJobs.filter(
+        (job) => !customJobIds.has(job.id)
+      );
+
+      setJobs([...customJobs, ...uniqueDefaultJobs]);
     } catch {
       setJobs(defaultJobs);
     }
@@ -205,7 +233,7 @@ export default function EmployerJobsPage() {
                       <div className="flex flex-wrap gap-2">
                         {job.skills.map((skill) => (
                           <Badge
-                            key={skill}
+                            key={`${job.id}-${skill}`}
                             variant="secondary"
                           >
                             {skill}
@@ -243,10 +271,12 @@ export default function EmployerJobsPage() {
                       {job.status}
                     </Badge>
 
-                    <Button variant="outline">
-                      Manage
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link href={`/employer/jobs/${job.id}`}>
+                      <Button variant="outline">
+                        Manage
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </CardContent>
