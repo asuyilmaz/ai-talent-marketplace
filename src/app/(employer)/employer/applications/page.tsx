@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
 import {
   Card,
   CardContent,
@@ -7,13 +10,26 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowRight,
   Briefcase,
   Search,
   Users,
 } from "lucide-react";
 
-const applications = [
+type Application = {
+  id: string;
+  candidateId?: string;
+  candidate: string;
+  jobId?: string;
+  role: string;
+  company?: string;
+  matchScore: number;
+  status: string;
+  experience: string;
+  skills: string[];
+  appliedAt?: string;
+};
+
+const defaultApplications: Application[] = [
   {
     id: "application-1",
     candidate: "Asu Yılmaz",
@@ -53,6 +69,76 @@ const applications = [
 ];
 
 export default function EmployerApplicationsPage() {
+  const [applications, setApplications] =
+    useState<Application[]>(defaultApplications);
+
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    const storedApplications =
+      localStorage.getItem("candidateApplications");
+
+    if (!storedApplications) {
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(storedApplications);
+
+      if (Array.isArray(parsed)) {
+        const existingIds = new Set(
+          defaultApplications.map(
+            (application) => application.id
+          )
+        );
+
+        const newApplications = parsed.filter(
+          (application: Application) =>
+            !existingIds.has(application.id)
+        );
+
+        setApplications([
+          ...newApplications,
+          ...defaultApplications,
+        ]);
+      }
+    } catch {
+      setApplications(defaultApplications);
+    }
+  }, []);
+
+  const filteredApplications = useMemo(() => {
+    const searchText = search.trim().toLowerCase();
+
+    if (!searchText) {
+      return applications;
+    }
+
+    return applications.filter((application) => {
+      return (
+        application.candidate
+          .toLowerCase()
+          .includes(searchText) ||
+        application.role
+          .toLowerCase()
+          .includes(searchText) ||
+        application.skills.some((skill) =>
+          skill.toLowerCase().includes(searchText)
+        )
+      );
+    });
+  }, [applications, search]);
+
+  const totalApplications = applications.length;
+
+  const reviewingCount = applications.filter(
+    (application) => application.status === "Reviewing"
+  ).length;
+
+  const interviewCount = applications.filter(
+    (application) => application.status === "Interview"
+  ).length;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -85,11 +171,11 @@ export default function EmployerApplicationsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              54
+              {totalApplications}
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              Across all active jobs
+              Across your job postings
             </p>
           </CardContent>
         </Card>
@@ -103,7 +189,7 @@ export default function EmployerApplicationsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              18
+              {reviewingCount}
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -121,7 +207,7 @@ export default function EmployerApplicationsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              7
+              {interviewCount}
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -138,13 +224,17 @@ export default function EmployerApplicationsPage() {
 
           <input
             type="text"
-            placeholder="Search candidates or positions..."
+            placeholder="Search candidates, positions or skills..."
+            value={search}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
             className="h-10 flex-1 bg-transparent text-sm outline-none"
           />
         </CardContent>
       </Card>
 
-      {/* Application List */}
+      {/* Applications */}
       <section className="space-y-4">
         <div>
           <h2 className="text-xl font-semibold">
@@ -152,83 +242,101 @@ export default function EmployerApplicationsPage() {
           </h2>
 
           <p className="mt-1 text-sm text-muted-foreground">
-            Review the latest candidates applying to your positions.
+            {filteredApplications.length} applications found.
           </p>
         </div>
 
-        <div className="space-y-4">
-          {applications.map((application) => (
-            <Card key={application.id}>
-              <CardContent className="p-6">
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                  {/* Candidate */}
-                  <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
-                      {application.candidate
-                        .split(" ")
-                        .map((name) => name[0])
-                        .join("")}
+        {filteredApplications.length > 0 ? (
+          <div className="space-y-4">
+            {filteredApplications.map((application) => (
+              <Card key={application.id}>
+                <CardContent className="p-6">
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    {/* Candidate */}
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
+                        {application.candidate
+                          .split(" ")
+                          .map((name) => name[0])
+                          .join("")}
+                      </div>
+
+                      <div className="space-y-2">
+                        <div>
+                          <h3 className="font-semibold">
+                            {application.candidate}
+                          </h3>
+
+                          <p className="text-sm text-muted-foreground">
+                            {application.role}
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {application.skills.map((skill) => (
+                            <Badge
+                              key={`${application.id}-${skill}`}
+                              variant="secondary"
+                            >
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          Experience:{" "}
+                          {application.experience}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div>
-                        <h3 className="font-semibold">
-                          {application.candidate}
-                        </h3>
+                    {/* Match + Status */}
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
+                      <div className="flex items-center gap-2">
+                        <Badge>
+                          {application.matchScore}% Match
+                        </Badge>
 
-                        <p className="text-sm text-muted-foreground">
-                          {application.role}
-                        </p>
+                        <Badge
+                          variant={
+                            application.status ===
+                            "Interview"
+                              ? "default"
+                              : application.status ===
+                                  "Reviewing"
+                                ? "secondary"
+                                : "outline"
+                          }
+                        >
+                          {application.status}
+                        </Badge>
                       </div>
 
-                      <div className="flex flex-wrap gap-2">
-                        {application.skills.map((skill) => (
-                          <Badge
-                            key={skill}
-                            variant="secondary"
-                          >
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        Experience: {application.experience}
-                      </div>
+                      <Button variant="outline">
+                        View Candidate
+                      </Button>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="flex min-h-40 items-center justify-center p-6">
+              <div className="text-center">
+                <h3 className="font-medium">
+                  No applications found
+                </h3>
 
-                  {/* Match + Status */}
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
-                    <div className="flex items-center gap-2">
-                      <Badge>
-                        {application.matchScore}% Match
-                      </Badge>
-
-                      <Badge
-                        variant={
-                          application.status === "Interview"
-                            ? "default"
-                            : application.status === "Reviewing"
-                              ? "secondary"
-                              : "outline"
-                        }
-                      >
-                        {application.status}
-                      </Badge>
-                    </div>
-
-                    <Button variant="outline">
-                      View Candidate
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Try another search.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </section>
     </div>
   );

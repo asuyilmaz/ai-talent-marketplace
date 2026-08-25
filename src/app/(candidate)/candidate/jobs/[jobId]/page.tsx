@@ -1,48 +1,187 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   ArrowLeft,
   Briefcase,
+  CheckCircle2,
   MapPin,
   Sparkles,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
+import { candidateProfile } from "@/data/profile";
 import { recommendedJobs } from "@/data/jobs";
 
-type JobDetailsPageProps = {
-  params: Promise<{
-    jobId: string;
-  }>;
+type Application = {
+  id: string;
+  candidateId: string;
+  candidate: string;
+  jobId: string;
+  role: string;
+  company: string;
+  matchScore: number;
+  status: "Applied";
+  experience: string;
+  skills: string[];
+  appliedAt: string;
 };
 
-export default async function JobDetailsPage({
-  params,
-}: JobDetailsPageProps) {
-  const { jobId } = await params;
+export default function JobDetailsPage() {
+  const params = useParams();
+
+  const jobId = Array.isArray(params.jobId)
+    ? params.jobId[0]
+    : params.jobId;
 
   const job = recommendedJobs.find(
     (item) => item.id === jobId
   );
 
+  const [applied, setApplied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (!jobId) {
+      return;
+    }
+
+    const storedApplications =
+      localStorage.getItem("candidateApplications");
+
+    if (!storedApplications) {
+      return;
+    }
+
+    try {
+      const applications: Application[] =
+        JSON.parse(storedApplications);
+
+      const alreadyApplied = applications.some(
+        (application) =>
+          application.jobId === jobId &&
+          application.candidate === candidateProfile.name
+      );
+
+      setApplied(alreadyApplied);
+    } catch {
+      setApplied(false);
+    }
+  }, [jobId]);
+
+  function handleApply() {
+    if (!job || applied) {
+      return;
+    }
+
+    const newApplication: Application = {
+      id: `application-${Date.now()}`,
+      candidateId: "candidate-1",
+      candidate: candidateProfile.name,
+      jobId: job.id,
+      role: job.title,
+      company: job.company,
+      matchScore: job.matchScore,
+      status: "Applied",
+      experience: candidateProfile.experience.title,
+      skills: job.skills,
+      appliedAt: new Date().toISOString(),
+    };
+
+    const storedApplications =
+      localStorage.getItem("candidateApplications");
+
+    let applications: Application[] = [];
+
+    if (storedApplications) {
+      try {
+        const parsed = JSON.parse(storedApplications);
+
+        if (Array.isArray(parsed)) {
+          applications = parsed;
+        }
+      } catch {
+        applications = [];
+      }
+    }
+
+    const alreadyExists = applications.some(
+      (application) =>
+        application.jobId === job.id &&
+        application.candidate === candidateProfile.name
+    );
+
+    if (alreadyExists) {
+      setApplied(true);
+      return;
+    }
+
+    localStorage.setItem(
+      "candidateApplications",
+      JSON.stringify([
+        newApplication,
+        ...applications,
+      ])
+    );
+
+    setApplied(true);
+    setSaved(true);
+
+    setTimeout(() => {
+      setSaved(false);
+    }, 2500);
+  }
+
   if (!job) {
-    notFound();
+    return (
+      <div className="space-y-6">
+        <Link
+          href="/candidate/jobs"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Jobs
+        </Link>
+
+        <Card>
+          <CardContent className="flex min-h-48 items-center justify-center">
+            <div className="text-center">
+              <h2 className="text-lg font-semibold">
+                Job not found
+              </h2>
+
+              <p className="mt-2 text-sm text-muted-foreground">
+                The job you are looking for could not be found.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
     <div className="space-y-8">
       {/* Back */}
-      <Link href="/candidate/jobs">
-  <Button variant="ghost">
-    <ArrowLeft className="mr-2 h-4 w-4" />
-    Back to Jobs
-  </Button>
-</Link>
+      <Link
+        href="/candidate/jobs"
+        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to Jobs
+      </Link>
 
-      {/* Job Header */}
+      {/* Header */}
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -76,7 +215,6 @@ export default async function JobDetailsPage({
               </div>
             </div>
 
-            {/* Match Score */}
             <div className="rounded-lg border p-5 text-center">
               <p className="text-sm text-muted-foreground">
                 AI Match
@@ -96,7 +234,6 @@ export default async function JobDetailsPage({
 
       {/* Content */}
       <section className="grid gap-4 lg:grid-cols-3">
-        {/* Main */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>About the Position</CardTitle>
@@ -118,7 +255,6 @@ export default async function JobDetailsPage({
           </CardContent>
         </Card>
 
-        {/* Skills */}
         <Card>
           <CardHeader>
             <CardTitle>Required Skills</CardTitle>
@@ -142,19 +278,37 @@ export default async function JobDetailsPage({
       {/* Application */}
       <Card>
         <CardHeader>
-          <CardTitle>Ready to Apply?</CardTitle>
+          <CardTitle>
+            {applied
+              ? "Application Submitted"
+              : "Ready to Apply?"}
+          </CardTitle>
 
           <p className="text-sm text-muted-foreground">
-            Your profile is a {job.matchScore}% match for this
-            position.
+            {applied
+              ? "Your application has been recorded for this position."
+              : `Your profile is a ${job.matchScore}% match for this position.`}
           </p>
         </CardHeader>
 
         <CardContent>
-          <Button size="lg">
-            Apply Now
-            <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-          </Button>
+          {applied ? (
+            <Button
+              variant="outline"
+              disabled
+            >
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+              {saved ? "Application Saved" : "Already Applied"}
+            </Button>
+          ) : (
+            <Button
+              size="lg"
+              onClick={handleApply}
+            >
+              Apply Now
+              <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>
