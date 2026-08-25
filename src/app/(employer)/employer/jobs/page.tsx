@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -13,7 +17,19 @@ import {
   Users,
 } from "lucide-react";
 
-const employerJobs = [
+type EmployerJob = {
+  id: string;
+  title: string;
+  description?: string;
+  skills?: string[];
+  applications: number;
+  matchRate: number;
+  status: string;
+  workType: string;
+  employmentType?: string;
+};
+
+const defaultJobs: EmployerJob[] = [
   {
     id: "employer-job-1",
     title: "Frontend Developer",
@@ -41,6 +57,26 @@ const employerJobs = [
 ];
 
 export default function EmployerJobsPage() {
+  const [jobs, setJobs] = useState<EmployerJob[]>(defaultJobs);
+
+  useEffect(() => {
+    const savedJobs = localStorage.getItem("employerJobs");
+
+    if (!savedJobs) {
+      return;
+    }
+
+    try {
+      const parsedJobs = JSON.parse(savedJobs);
+
+      if (Array.isArray(parsedJobs)) {
+        setJobs([...parsedJobs, ...defaultJobs]);
+      }
+    } catch {
+      setJobs(defaultJobs);
+    }
+  }, []);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -63,10 +99,13 @@ export default function EmployerJobsPage() {
           </p>
         </div>
 
-        <Button>
+        <Link
+          href="/employer/jobs/create"
+          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+        >
           <Plus className="mr-2 h-4 w-4" />
           Create Job
-        </Button>
+        </Link>
       </div>
 
       {/* Overview */}
@@ -80,7 +119,7 @@ export default function EmployerJobsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              12
+              {jobs.length}
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -98,7 +137,11 @@ export default function EmployerJobsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              8
+              {
+                jobs.filter(
+                  (job) => job.status === "Published"
+                ).length
+              }
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -116,7 +159,11 @@ export default function EmployerJobsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              4
+              {
+                jobs.filter(
+                  (job) => job.status === "Draft"
+                ).length
+              }
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -139,7 +186,7 @@ export default function EmployerJobsPage() {
         </div>
 
         <div className="space-y-4">
-          {employerJobs.map((job) => (
+          {jobs.map((job) => (
             <Card key={job.id}>
               <CardContent className="p-6">
                 <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -154,6 +201,19 @@ export default function EmployerJobsPage() {
                       </p>
                     </div>
 
+                    {job.skills && job.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {job.skills.map((skill) => (
+                          <Badge
+                            key={skill}
+                            variant="secondary"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                       <span className="flex items-center gap-2">
                         <Users className="h-4 w-4" />
@@ -163,6 +223,12 @@ export default function EmployerJobsPage() {
                       <span>
                         {job.matchRate}% average match
                       </span>
+
+                      {job.employmentType && (
+                        <span>
+                          {job.employmentType}
+                        </span>
+                      )}
                     </div>
                   </div>
 
