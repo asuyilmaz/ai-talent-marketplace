@@ -54,6 +54,7 @@ export function MobileNavigation() {
   return (
     <Sheet>
       <SheetTrigger
+        id="mobile-navigation-trigger"
         className="md:hidden"
         aria-label="Open navigation menu"
       >
@@ -62,7 +63,9 @@ export function MobileNavigation() {
 
       <SheetContent side="left">
         <SheetHeader>
-          <SheetTitle>AI Talent Marketplace</SheetTitle>
+          <SheetTitle>
+            AI Talent Marketplace
+          </SheetTitle>
         </SheetHeader>
 
         <nav className="mt-6 space-y-1">
