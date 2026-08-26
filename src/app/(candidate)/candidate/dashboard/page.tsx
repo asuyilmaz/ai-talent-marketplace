@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -113,10 +114,12 @@ export default function CandidateDashboard() {
             </p>
           </div>
 
-          <Button variant="ghost" className="hidden sm:flex">
-            View all
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <Link href="/candidate/jobs">
+            <Button variant="ghost" className="hidden sm:flex">
+              View all
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         <div className="space-y-3">
@@ -137,7 +140,10 @@ export default function CandidateDashboard() {
 
                     <div className="flex flex-wrap gap-2">
                       {job.skills.map((skill) => (
-                        <Badge key={skill} variant="secondary">
+                        <Badge
+                          key={`${job.id}-${skill}`}
+                          variant="secondary"
+                        >
                           {skill}
                         </Badge>
                       ))}
@@ -153,10 +159,12 @@ export default function CandidateDashboard() {
                       {job.matchScore}% Match
                     </Badge>
 
-                    <Button variant="outline" size="sm">
-                      View Job
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link href={`/candidate/jobs/${job.id}`}>
+                      <Button variant="outline" size="sm">
+                        View Job
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </div>
               </CardContent>
@@ -164,13 +172,15 @@ export default function CandidateDashboard() {
           ))}
         </div>
 
-        <Button
-          variant="outline"
-          className="mt-4 w-full sm:hidden"
-        >
-          View all jobs
-          <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
+        <Link href="/candidate/jobs">
+          <Button
+            variant="outline"
+            className="mt-4 w-full sm:hidden"
+          >
+            View all jobs
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </Link>
       </section>
 
       {/* Applications + Skill Gap */}
@@ -192,38 +202,40 @@ export default function CandidateDashboard() {
           </CardHeader>
 
           <CardContent className="space-y-4">
-  {recentApplications.map((application) => (
-    <div
-      key={application.id}
-      className="flex items-center justify-between gap-4"
-    >
-      <div>
-        <p className="text-sm font-medium">
-          {application.jobTitle}
-        </p>
+            {recentApplications.map((application) => (
+              <div
+                key={application.id}
+                className="flex items-center justify-between gap-4"
+              >
+                <div>
+                  <p className="text-sm font-medium">
+                    {application.jobTitle}
+                  </p>
 
-        <p className="text-xs text-muted-foreground">
-          {application.company}
-        </p>
-      </div>
+                  <p className="text-xs text-muted-foreground">
+                    {application.company}
+                  </p>
+                </div>
 
-      <Badge
-        variant={
-          application.status === "Interview"
-            ? "secondary"
-            : "outline"
-        }
-      >
-        {application.status}
-      </Badge>
-    </div>
-  ))}
+                <Badge
+                  variant={
+                    application.status === "Interview"
+                      ? "secondary"
+                      : "outline"
+                  }
+                >
+                  {application.status}
+                </Badge>
+              </div>
+            ))}
 
-  <Button variant="outline" className="w-full">
-    View applications
-    <ArrowRight className="ml-2 h-4 w-4" />
-  </Button>
-</CardContent>
+            <Link href="/candidate/applications">
+              <Button variant="outline" className="w-full">
+                View applications
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
         </Card>
 
         {/* Skill Gap */}
@@ -237,27 +249,29 @@ export default function CandidateDashboard() {
           </CardHeader>
 
           <CardContent className="space-y-4">
-  {skillGaps.map((skill) => (
-    <div key={skill.id}>
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-sm font-medium">
-          {skill.name}
-        </span>
+            {skillGaps.map((skill) => (
+              <div key={skill.id}>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-sm font-medium">
+                    {skill.name}
+                  </span>
 
-        <span className="text-xs text-muted-foreground">
-          {skill.score}%
-        </span>
-      </div>
+                  <span className="text-xs text-muted-foreground">
+                    {skill.score}%
+                  </span>
+                </div>
 
-      <Progress value={skill.score} />
-    </div>
-  ))}
+                <Progress value={skill.score} />
+              </div>
+            ))}
 
-  <Button variant="outline" className="w-full">
-    View Skill Gap
-    <ArrowRight className="ml-2 h-4 w-4" />
-  </Button>
-</CardContent>
+            <Link href="/candidate/skill-gap">
+              <Button variant="outline" className="w-full">
+                View Skill Gap
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </CardContent>
         </Card>
       </section>
     </div>
