@@ -13,12 +13,16 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: "candidate" | "employer";
+type UserRole = "candidate" | "employer";
+
+type RegisterResponse = {
+  message?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
 };
 
 export default function RegisterPage() {
@@ -28,11 +32,12 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] =
-    useState<"candidate" | "employer">("candidate");
+    useState<UserRole>("candidate");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(
+  async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
@@ -40,66 +45,58 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
 
-    const storedUsers =
-      localStorage.getItem("users");
-
-    let users: User[] = [];
-
-    if (storedUsers) {
-      try {
-        const parsed = JSON.parse(storedUsers);
-
-        if (Array.isArray(parsed)) {
-          users = parsed;
+    try {
+      const response = await fetch(
+        "/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            role,
+          }),
         }
-      } catch {
-        users = [];
-      }
-    }
-
-    const normalizedEmail =
-      email.trim().toLowerCase();
-
-    const emailExists = users.some(
-      (user) =>
-        user.email.toLowerCase() === normalizedEmail
-    );
-
-    if (emailExists) {
-      setError(
-        "An account with this email already exists."
       );
+
+      const data =
+        (await response.json()) as RegisterResponse;
+
+      if (!response.ok || !data.user) {
+        setError(
+          data.message ||
+            "Unable to create the account."
+        );
+        return;
+      }
+
+      /*
+       * Authentication'ı henüz cookie/session'a
+       * taşımadığımız için mevcut route protection
+       * sistemiyle uyumlu olarak kullanıcı bilgisini
+       * geçici olarak currentUser'a kaydediyoruz.
+       *
+       * Şifre kesinlikle burada saklanmıyor.
+       */
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify(data.user)
+      );
+
+      if (data.user.role === "candidate") {
+        router.push("/candidate/dashboard");
+      } else {
+        router.push("/employer/dashboard");
+      }
+    } catch {
+      setError(
+        "Unable to connect to the server. Please try again."
+      );
+    } finally {
       setLoading(false);
-      return;
-    }
-
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      name: name.trim(),
-      email: normalizedEmail,
-      password,
-      role,
-    };
-
-    const updatedUsers = [
-      ...users,
-      newUser,
-    ];
-
-    localStorage.setItem(
-      "users",
-      JSON.stringify(updatedUsers)
-    );
-
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify(newUser)
-    );
-
-    if (role === "candidate") {
-      router.push("/candidate/dashboard");
-    } else {
-      router.push("/employer/dashboard");
     }
   }
 
@@ -202,12 +199,10 @@ export default function RegisterPage() {
                 value={role}
                 onChange={(event) =>
                   setRole(
-                    event.target.value as
-                      | "candidate"
-                      | "employer"
+                    event.target.value as UserRole
                   )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="candidate">
                   Candidate
@@ -220,9 +215,11 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <p className="text-sm text-destructive">
-                {error}
-              </p>
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
+                <p className="text-sm text-destructive">
+                  {error}
+                </p>
+              </div>
             )}
 
             <Button

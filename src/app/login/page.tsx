@@ -13,12 +13,16 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  password: string;
-  role: "candidate" | "employer";
+type UserRole = "candidate" | "employer";
+
+type LoginResponse = {
+  message?: string;
+  user?: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole;
+  };
 };
 
 export default function LoginPage() {
@@ -26,10 +30,11 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(
+  async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>
   ) {
     event.preventDefault();
@@ -37,45 +42,54 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
 
-    const storedUsers =
-      localStorage.getItem("users");
-
-    let users: User[] = [];
-
-    if (storedUsers) {
-      try {
-        const parsed = JSON.parse(storedUsers);
-
-        if (Array.isArray(parsed)) {
-          users = parsed;
+    try {
+      const response = await fetch(
+        "/api/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
         }
-      } catch {
-        users = [];
+      );
+
+      const data =
+        (await response.json()) as LoginResponse;
+
+      if (!response.ok || !data.user) {
+        setError(
+          data.message ||
+            "Invalid email or password."
+        );
+        return;
       }
-    }
 
-    const user = users.find(
-      (item) =>
-        item.email.toLowerCase() ===
-          email.trim().toLowerCase() &&
-        item.password === password
-    );
+      /*
+       * Şifreyi kesinlikle localStorage'a yazmıyoruz.
+       * Şimdilik mevcut route protection sistemiyle
+       * uyumlu olması için sadece kullanıcı kimliğini
+       * geçici olarak currentUser'a kaydediyoruz.
+       */
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify(data.user)
+      );
 
-    if (!user) {
-      setError("Invalid email or password.");
+      if (data.user.role === "candidate") {
+        router.push("/candidate/dashboard");
+      } else {
+        router.push("/employer/dashboard");
+      }
+    } catch {
+      setError(
+        "Unable to connect to the server. Please try again."
+      );
+    } finally {
       setLoading(false);
-      return;
-    }
-
-    localStorage.setItem(
-      "currentUser",
-      JSON.stringify(user)
-    );
-
-    if (user.role === "candidate") {
-      router.push("/candidate/dashboard");
-    } else {
-      router.push("/employer/dashboard");
     }
   }
 
@@ -144,9 +158,11 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <p className="text-sm text-destructive">
-                {error}
-              </p>
+              <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
+                <p className="text-sm text-destructive">
+                  {error}
+                </p>
+              </div>
             )}
 
             <Button
@@ -154,7 +170,9 @@ export default function LoginPage() {
               disabled={loading}
               className="w-full"
             >
-              {loading ? "Signing in..." : "Sign In"}
+              {loading
+                ? "Signing in..."
+                : "Sign In"}
             </Button>
           </form>
 
