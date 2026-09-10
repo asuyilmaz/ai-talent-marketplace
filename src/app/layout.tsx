@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "AI Talent Marketplace",
-    template: "%s | AI Talent Marketplace",
+    default: "TALNIVO",
+    template: "%s | TALNIVO",
   },
   description:
     "AI-powered talent and recruitment platform connecting candidates with employers.",
   keywords: [
-    "AI Talent Marketplace",
+    "TALNIVO",
     "job marketplace",
     "recruitment",
     "AI matching",
@@ -40,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr">
+    <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

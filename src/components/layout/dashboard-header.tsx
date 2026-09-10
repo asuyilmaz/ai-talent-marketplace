@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Bell } from "lucide-react";
 
 import { MobileNavigation } from "@/components/navigation/mobile-navigation";
 import {
@@ -21,7 +20,6 @@ type User = {
   id: string;
   name: string;
   email: string;
-  password: string;
   role: "candidate" | "employer";
 };
 
@@ -45,9 +43,15 @@ export function DashboardHeader() {
     }
   }, []);
 
-  function handleLogout() {
-    localStorage.removeItem("currentUser");
-    router.push("/login");
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      localStorage.removeItem("currentUser");
+      setUser(null);
+      router.replace("/login");
+      router.refresh();
+    }
   }
 
   function goToProfile() {
@@ -91,27 +95,16 @@ export function DashboardHeader() {
 
           <div>
             <p className="text-sm font-semibold">
-              AI Talent Marketplace
+              TALNIVO
             </p>
 
             <p className="hidden text-xs text-muted-foreground sm:block">
-              Career intelligence platform
+              Your talent. Your next level.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Notifications */}
-          <button
-            type="button"
-            aria-label="Notifications"
-            className="relative inline-flex h-9 w-9 items-center justify-center rounded-md hover:bg-muted"
-          >
-            <Bell className="h-4 w-4" />
-
-            <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-primary" />
-          </button>
-
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger

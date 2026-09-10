@@ -46,6 +46,8 @@ model User {
   company           Company?
 
   applications      Application[] @relation("CandidateApplications")
+  interviewSessions    InterviewSession[]
+  aiInterviewRateLimit AiInterviewRateLimit?
 
   @@index([role])
 }
@@ -95,6 +97,7 @@ model Job {
   company      Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
   applications Application[]
   skills       JobSkill[]
+  interviewSessions InterviewSession[]
 
   @@index([companyId])
   @@index([title])
@@ -137,4 +140,35 @@ model Application {
   @@index([candidateId])
   @@index([jobId])
   @@index([status])
+}
+model InterviewSession {
+  id              String   @id @default(cuid())
+  candidateId     String
+  jobId           String
+  turns           Json
+  currentQuestion String?
+  finalSummary    String?
+  completed       Boolean  @default(false)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  candidate User @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  job       Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId, active])
+  @@index([candidateId, createdAt])
+  @@index([jobId])
+}
+
+
+model AiInterviewRateLimit {
+  candidateId String   @id
+  windowStart DateTime
+  requestCount Int     @default(0)
+  updatedAt    DateTime @updatedAt
+
+  candidate User @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([windowStart])
 }

@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
 import { prisma } from "@/lib/prisma";
+import {
+  createSessionToken,
+  SESSION_COOKIE_NAME,
+  SESSION_MAX_AGE,
+} from "@/lib/session";
 
 export const runtime = "nodejs";
 
@@ -57,21 +62,35 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json(
+    const role =
+      user.role === "CANDIDATE"
+        ? "candidate"
+        : "employer";
+
+    const response = NextResponse.json(
       {
         message: "Login successful.",
         user: {
           id: user.id,
           name: user.name,
           email: user.email,
-          role:
-            user.role === "CANDIDATE"
-              ? "candidate"
-              : "employer",
+          role,
         },
       },
       { status: 200 }
     );
+
+    response.cookies.set({
+      name: SESSION_COOKIE_NAME,
+      value: createSessionToken(user.id, role),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: SESSION_MAX_AGE,
+    });
+
+    return response;
   } catch (error) {
     console.error("Login error:", error);
 

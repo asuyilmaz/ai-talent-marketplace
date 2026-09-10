@@ -106,7 +106,7 @@ export default function LoginPage() {
           </CardTitle>
 
           <p className="text-sm text-muted-foreground">
-            Sign in to your AI Talent Marketplace account.
+            Sign in to your TALNIVO account.
           </p>
         </CardHeader>
 

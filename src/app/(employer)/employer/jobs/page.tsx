@@ -27,83 +27,80 @@ type EmployerJob = {
   status: string;
   workType: string;
   employmentType?: string;
+  company?: string;
 };
 
-const defaultJobs: EmployerJob[] = [
-  {
-    id: "employer-job-1",
-    title: "Frontend Developer",
-    applications: 24,
-    matchRate: 92,
-    status: "Published",
-    workType: "Remote",
-    employmentType: "Full-time",
-    description:
-      "We are looking for a frontend developer to build modern and responsive web applications.",
-    skills: ["React", "Next.js", "TypeScript"],
-  },
-  {
-    id: "employer-job-2",
-    title: "React Developer",
-    applications: 18,
-    matchRate: 88,
-    status: "Published",
-    workType: "Hybrid",
-    employmentType: "Full-time",
-    description:
-      "Join our frontend team and help us create scalable React applications.",
-    skills: ["React", "JavaScript", "CSS"],
-  },
-  {
-    id: "employer-job-3",
-    title: "UI Engineer",
-    applications: 12,
-    matchRate: 84,
-    status: "Draft",
-    workType: "Remote",
-    employmentType: "Contract",
-    description:
-      "Work on user interfaces and improve the experience of our digital products.",
-    skills: ["React", "Tailwind", "UI/UX"],
-  },
-];
+type JobsResponse = {
+  message?: string;
+  jobs?: EmployerJob[];
+};
 
 export default function EmployerJobsPage() {
-  const [jobs, setJobs] = useState<EmployerJob[]>(defaultJobs);
+  const [jobs, setJobs] = useState<EmployerJob[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const savedJobs = localStorage.getItem("employerJobs");
+    async function loadJobs() {
+      try {
+        const storedUser =
+          localStorage.getItem("currentUser");
 
-    if (!savedJobs) {
-      setJobs(defaultJobs);
-      return;
-    }
+        if (!storedUser) {
+          window.location.href = "/login";
+          return;
+        }
 
-    try {
-      const parsedJobs: unknown = JSON.parse(savedJobs);
+        const currentUser = JSON.parse(
+          storedUser
+        ) as {
+          id: string;
+          role: "candidate" | "employer";
+        };
 
-      if (!Array.isArray(parsedJobs)) {
-        setJobs(defaultJobs);
-        return;
+        if (currentUser.role !== "employer") {
+          window.location.href =
+            "/candidate/dashboard";
+          return;
+        }
+
+        const response = await fetch(
+          `/api/jobs?userId=${encodeURIComponent(
+            currentUser.id
+          )}`
+        );
+
+        const data =
+          (await response.json()) as JobsResponse;
+
+        if (!response.ok) {
+          setError(
+            data.message ||
+              "Unable to load your jobs."
+          );
+          return;
+        }
+
+        setJobs(data.jobs ?? []);
+      } catch {
+        setError(
+          "Unable to connect to the server."
+        );
+      } finally {
+        setLoading(false);
       }
-
-      const customJobs = parsedJobs as EmployerJob[];
-
-      // Özel ilanları önce al, varsayılanlarla aynı ID'li olanları
-      // tekrar ekleme.
-      const customJobIds = new Set(
-        customJobs.map((job) => job.id)
-      );
-
-      const uniqueDefaultJobs = defaultJobs.filter(
-        (job) => !customJobIds.has(job.id)
-      );
-
-      setJobs([...customJobs, ...uniqueDefaultJobs]);
-    } catch {
-      setJobs(defaultJobs);
     }
+
+    loadJobs();
   }, []);
+
+  const publishedCount = jobs.filter(
+    (job) => job.status === "Published"
+  ).length;
+
+  const draftCount = jobs.filter(
+    (job) => job.status === "Draft"
+  ).length;
 
   return (
     <div className="space-y-8">
@@ -123,7 +120,8 @@ export default function EmployerJobsPage() {
           </h1>
 
           <p className="mt-2 text-muted-foreground">
-            Create, manage and monitor your company&apos;s job postings.
+            Create, manage and monitor your company&apos;s
+            job postings.
           </p>
         </div>
 
@@ -165,11 +163,7 @@ export default function EmployerJobsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              {
-                jobs.filter(
-                  (job) => job.status === "Published"
-                ).length
-              }
+              {publishedCount}
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -187,11 +181,7 @@ export default function EmployerJobsPage() {
 
           <CardContent>
             <p className="text-4xl font-semibold">
-              {
-                jobs.filter(
-                  (job) => job.status === "Draft"
-                ).length
-              }
+              {draftCount}
             </p>
 
             <p className="mt-1 text-sm text-muted-foreground">
@@ -201,89 +191,152 @@ export default function EmployerJobsPage() {
         </Card>
       </section>
 
+      {/* Loading */}
+      {loading && (
+        <Card>
+          <CardContent className="flex min-h-40 items-center justify-center">
+            <p className="text-sm text-muted-foreground">
+              Loading jobs...
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Error */}
+      {!loading && error && (
+        <Card>
+          <CardContent className="flex min-h-40 items-center justify-center p-6">
+            <p className="text-sm text-destructive">
+              {error}
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Empty State */}
+      {!loading &&
+        !error &&
+        jobs.length === 0 && (
+          <Card>
+            <CardContent className="flex min-h-48 flex-col items-center justify-center p-6 text-center">
+              <Briefcase className="h-8 w-8 text-muted-foreground" />
+
+              <h3 className="mt-4 font-medium">
+                No job postings yet
+              </h3>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Create your first job posting to start
+                attracting candidates.
+              </p>
+
+              <Link href="/employer/jobs/create">
+                <Button className="mt-4">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Job
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+        )}
+
       {/* Job List */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold">
-            Your Job Postings
-          </h2>
+      {!loading &&
+        !error &&
+        jobs.length > 0 && (
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Your Job Postings
+              </h2>
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage your active and draft positions.
-          </p>
-        </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Manage your active and draft positions.
+              </p>
+            </div>
 
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <Card key={job.id}>
-              <CardContent className="p-6">
-                <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                  <div className="space-y-3">
-                    <div>
-                      <h3 className="text-lg font-semibold">
-                        {job.title}
-                      </h3>
+            <div className="space-y-4">
+              {jobs.map((job) => (
+                <Card key={job.id}>
+                  <CardContent className="p-6">
+                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                      <div className="space-y-3">
+                        <div>
+                          <h3 className="text-lg font-semibold">
+                            {job.title}
+                          </h3>
 
-                      <p className="text-sm text-muted-foreground">
-                        {job.workType} · Tech Company
-                      </p>
-                    </div>
+                          <p className="text-sm text-muted-foreground">
+                            {job.workType} ·{" "}
+                            {job.company ??
+                              "Company"}
+                          </p>
+                        </div>
 
-                    {job.skills && job.skills.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {job.skills.map((skill) => (
-                          <Badge
-                            key={`${job.id}-${skill}`}
-                            variant="secondary"
-                          >
-                            {skill}
-                          </Badge>
-                        ))}
+                        {job.skills &&
+                          job.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-2">
+                              {job.skills.map(
+                                (skill) => (
+                                  <Badge
+                                    key={`${job.id}-${skill}`}
+                                    variant="secondary"
+                                  >
+                                    {skill}
+                                  </Badge>
+                                )
+                              )}
+                            </div>
+                          )}
+
+                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-2">
+                            <Users className="h-4 w-4" />
+                            {job.applications}{" "}
+                            applications
+                          </span>
+
+                          <span>
+                            {job.matchRate}% average
+                            match
+                          </span>
+
+                          {job.employmentType && (
+                            <span>
+                              {job.employmentType}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    )}
 
-                    <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-2">
-                        <Users className="h-4 w-4" />
-                        {job.applications} applications
-                      </span>
+                      <div className="flex items-center justify-between gap-4 sm:justify-end">
+                        <Badge
+                          variant={
+                            job.status ===
+                            "Published"
+                              ? "default"
+                              : "secondary"
+                          }
+                        >
+                          {job.status}
+                        </Badge>
 
-                      <span>
-                        {job.matchRate}% average match
-                      </span>
-
-                      {job.employmentType && (
-                        <span>
-                          {job.employmentType}
-                        </span>
-                      )}
+                        <Link
+                          href={`/employer/jobs/${job.id}`}
+                        >
+                          <Button variant="outline">
+                            Manage
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4 sm:justify-end">
-                    <Badge
-                      variant={
-                        job.status === "Published"
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {job.status}
-                    </Badge>
-
-                    <Link href={`/employer/jobs/${job.id}`}>
-                      <Button variant="outline">
-                        Manage
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </section>
+        )}
     </div>
   );
 }

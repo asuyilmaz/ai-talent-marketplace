@@ -64,7 +64,7 @@ export function MobileNavigation() {
       <SheetContent side="left">
         <SheetHeader>
           <SheetTitle>
-            AI Talent Marketplace
+            TALNIVO
           </SheetTitle>
         </SheetHeader>
 

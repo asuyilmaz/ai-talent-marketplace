@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   Briefcase,
   Search,
@@ -14,179 +15,221 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type ApplicationStatus =
   | "Applied"
   | "Reviewing"
   | "Interview"
+  | "Offer"
   | "Hired"
   | "Rejected";
 
 type Application = {
   id: string;
-  candidateId?: string;
+  candidateId: string;
   candidate: string;
-  jobId?: string;
+  jobId: string;
   role: string;
-  company?: string;
+  company: string;
   matchScore: number;
   status: ApplicationStatus;
   experience: string;
   skills: string[];
-  appliedAt?: string;
+  appliedAt: string;
 };
 
-const defaultApplications: Application[] = [
-  {
-    id: "application-1",
-    candidate: "Asu Yılmaz",
-    role: "Frontend Developer",
-    matchScore: 94,
-    status: "Interview",
-    experience: "Frontend Development",
-    skills: ["React", "Next.js", "TypeScript"],
-  },
-  {
-    id: "application-2",
-    candidate: "Elif Kaya",
-    role: "React Developer",
-    matchScore: 91,
-    status: "Reviewing",
-    experience: "2 years",
-    skills: ["React", "JavaScript", "CSS"],
-  },
-  {
-    id: "application-3",
-    candidate: "Mert Demir",
-    role: "UI Engineer",
-    matchScore: 87,
-    status: "Applied",
-    experience: "1 year",
-    skills: ["React", "Tailwind", "UI/UX"],
-  },
-  {
-    id: "application-4",
-    candidate: "Zeynep Aydın",
-    role: "Frontend Developer",
-    matchScore: 82,
-    status: "Reviewing",
-    experience: "2 years",
-    skills: ["JavaScript", "CSS", "React"],
-  },
-];
+type ApplicationsResponse = {
+  message?: string;
+  applications?: Application[];
+};
+
+type UpdateApplicationResponse = {
+  message?: string;
+  application?: {
+    id: string;
+    status: ApplicationStatus;
+  };
+};
 
 const statusOptions: ApplicationStatus[] = [
   "Applied",
   "Reviewing",
   "Interview",
+  "Offer",
   "Hired",
   "Rejected",
 ];
 
 export default function EmployerApplicationsPage() {
   const [applications, setApplications] =
-    useState<Application[]>(defaultApplications);
+    useState<Application[]>([]);
 
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const [updatingId, setUpdatingId] =
+    useState<string | null>(null);
 
   useEffect(() => {
-    const storedApplications =
-      localStorage.getItem("candidateApplications");
+    async function loadApplications() {
+      try {
+        const storedUser =
+          localStorage.getItem("currentUser");
 
-    if (!storedApplications) {
-      setApplications(defaultApplications);
-      return;
-    }
+        if (!storedUser) {
+          window.location.href = "/login";
+          return;
+        }
 
-    try {
-      const parsed: unknown = JSON.parse(storedApplications);
+        let currentUser: {
+          id: string;
+          name: string;
+          email: string;
+          role: "candidate" | "employer";
+        };
 
-      if (!Array.isArray(parsed)) {
-        setApplications(defaultApplications);
-        return;
-      }
+        try {
+          currentUser = JSON.parse(storedUser);
+        } catch {
+          localStorage.removeItem("currentUser");
+          window.location.href = "/login";
+          return;
+        }
 
-      const stored = parsed as Application[];
+        if (currentUser.role !== "employer") {
+          window.location.href =
+            "/candidate/dashboard";
+          return;
+        }
 
-      const storedById = new Map(
-        stored.map((application) => [
-          application.id,
-          application,
-        ])
-      );
-
-      const mergedDefaultApplications =
-        defaultApplications.map((application) => {
-          const storedApplication =
-            storedById.get(application.id);
-
-          if (!storedApplication) {
-            return application;
+        const response = await fetch(
+          `/api/applications?employerId=${encodeURIComponent(
+            currentUser.id
+          )}`,
+          {
+            method: "GET",
+            cache: "no-store",
           }
+        );
 
-          return {
-            ...application,
-            ...storedApplication,
-            status: storedApplication.status,
-          };
-        });
+        const data =
+          (await response.json()) as ApplicationsResponse;
 
-      const defaultIds = new Set(
-        defaultApplications.map(
-          (application) => application.id
-        )
-      );
+        if (!response.ok) {
+          setError(
+            data.message ||
+              "Unable to load applications."
+          );
+          return;
+        }
 
-      const customApplications = stored.filter(
-        (application) => !defaultIds.has(application.id)
-      );
-
-      setApplications([
-        ...customApplications,
-        ...mergedDefaultApplications,
-      ]);
-    } catch {
-      setApplications(defaultApplications);
+        setApplications(
+          data.applications ?? []
+        );
+      } catch {
+        setError(
+          "Unable to connect to the server."
+        );
+      } finally {
+        setLoading(false);
+      }
     }
+
+    loadApplications();
   }, []);
 
-  function updateApplicationStatus(
+  async function updateApplicationStatus(
     applicationId: string,
     newStatus: ApplicationStatus
   ) {
-    const updatedApplications = applications.map(
-      (application) =>
-        application.id === applicationId
-          ? {
-              ...application,
-              status: newStatus,
-            }
-          : application
-    );
+    try {
+      const storedUser =
+        localStorage.getItem("currentUser");
 
-    setApplications(updatedApplications);
+      if (!storedUser) {
+        window.location.href = "/login";
+        return;
+      }
 
-    /*
-     * Bütün başvuruları kaydediyoruz.
-     * Böylece default/demo başvurularının da
-     * değiştirilmiş status bilgisi korunuyor.
-     */
-    localStorage.setItem(
-      "candidateApplications",
-      JSON.stringify(updatedApplications)
-    );
+      let currentUser: {
+        id: string;
+        role: "candidate" | "employer";
+      };
+
+      try {
+        currentUser = JSON.parse(storedUser);
+      } catch {
+        localStorage.removeItem("currentUser");
+        window.location.href = "/login";
+        return;
+      }
+
+      if (currentUser.role !== "employer") {
+        return;
+      }
+
+      setUpdatingId(applicationId);
+      setError("");
+
+      const response = await fetch(
+        "/api/applications",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            applicationId,
+            employerId: currentUser.id,
+            status: newStatus,
+          }),
+        }
+      );
+
+      const data =
+        (await response.json()) as UpdateApplicationResponse;
+
+      if (!response.ok) {
+        setError(
+          data.message ||
+            "Unable to update application status."
+        );
+        return;
+      }
+
+      setApplications((current) =>
+        current.map((application) =>
+          application.id === applicationId
+            ? {
+                ...application,
+                status:
+                  data.application?.status ??
+                  newStatus,
+              }
+            : application
+        )
+      );
+    } catch {
+      setError(
+        "Unable to update application status."
+      );
+    } finally {
+      setUpdatingId(null);
+    }
   }
 
   const filteredApplications = useMemo(() => {
-    const searchText = search.trim().toLowerCase();
+    const searchText =
+      search.trim().toLowerCase();
 
     if (!searchText) {
       return applications;
     }
 
-    return applications.filter((application) => {
-      return (
+    return applications.filter(
+      (application) =>
         application.candidate
           .toLowerCase()
           .includes(searchText) ||
@@ -194,25 +237,55 @@ export default function EmployerApplicationsPage() {
           .toLowerCase()
           .includes(searchText) ||
         application.skills.some((skill) =>
-          skill.toLowerCase().includes(searchText)
+          skill
+            .toLowerCase()
+            .includes(searchText)
         )
-      );
-    });
+    );
   }, [applications, search]);
 
-  const totalApplications = applications.length;
+  const totalApplications =
+    applications.length;
 
-  const reviewingCount = applications.filter(
-    (application) => application.status === "Reviewing"
-  ).length;
+  const reviewingCount =
+    applications.filter(
+      (application) =>
+        application.status === "Reviewing"
+    ).length;
 
-  const interviewCount = applications.filter(
-    (application) => application.status === "Interview"
-  ).length;
+  const interviewCount =
+    applications.filter(
+      (application) =>
+        application.status === "Interview"
+    ).length;
 
-  const hiredCount = applications.filter(
-    (application) => application.status === "Hired"
-  ).length;
+  const hiredCount =
+    applications.filter(
+      (application) =>
+        application.status === "Hired"
+    ).length;
+
+  function getStatusVariant(
+    status: ApplicationStatus
+  ) {
+    if (status === "Rejected") {
+      return "destructive" as const;
+    }
+
+    if (
+      status === "Interview" ||
+      status === "Offer" ||
+      status === "Hired"
+    ) {
+      return "default" as const;
+    }
+
+    if (status === "Reviewing") {
+      return "secondary" as const;
+    }
+
+    return "outline" as const;
+  }
 
   return (
     <div className="space-y-8">
@@ -231,11 +304,12 @@ export default function EmployerApplicationsPage() {
         </h1>
 
         <p className="mt-2 text-muted-foreground">
-          Review candidates and manage your recruitment pipeline.
+          Review candidates and manage your
+          recruitment pipeline.
         </p>
       </div>
 
-      {/* Overview */}
+      {/* Statistics */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card>
           <CardHeader>
@@ -327,122 +401,32 @@ export default function EmployerApplicationsPage() {
         </CardContent>
       </Card>
 
-      {/* Applications */}
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-xl font-semibold">
-            Candidate Applications
-          </h2>
+      {/* Loading */}
+      {loading && (
+        <Card>
+          <CardContent className="flex min-h-40 items-center justify-center">
+            <p className="text-sm text-muted-foreground">
+              Loading applications...
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-          <p className="mt-1 text-sm text-muted-foreground">
-            {filteredApplications.length} applications found.
-          </p>
-        </div>
+      {/* Error */}
+      {!loading && error && (
+        <Card>
+          <CardContent className="flex min-h-40 items-center justify-center p-6">
+            <p className="text-sm text-destructive">
+              {error}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
-        {filteredApplications.length > 0 ? (
-          <div className="space-y-4">
-            {filteredApplications.map((application) => (
-              <Card key={application.id}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                    {/* Candidate */}
-                    <div className="flex items-start gap-4">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
-                        {application.candidate
-                          .split(" ")
-                          .map((name) => name[0])
-                          .join("")}
-                      </div>
-
-                      <div className="space-y-2">
-                        <div>
-                          <h3 className="font-semibold">
-                            {application.candidate}
-                          </h3>
-
-                          <p className="text-sm text-muted-foreground">
-                            {application.role}
-                          </p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          {application.skills.map((skill) => (
-                            <Badge
-                              key={`${application.id}-${skill}`}
-                              variant="secondary"
-                            >
-                              {skill}
-                            </Badge>
-                          ))}
-                        </div>
-
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          Experience:{" "}
-                          {application.experience}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Status + Match */}
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
-                      <div className="flex items-center gap-2">
-                        <Badge>
-                          {application.matchScore}% Match
-                        </Badge>
-
-                        <Badge
-                          variant={
-                            application.status === "Hired"
-                              ? "default"
-                              : application.status === "Rejected"
-                                ? "destructive"
-                                : application.status ===
-                                    "Interview"
-                                  ? "default"
-                                  : application.status ===
-                                      "Reviewing"
-                                    ? "secondary"
-                                    : "outline"
-                          }
-                        >
-                          {application.status}
-                        </Badge>
-                      </div>
-
-                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <select
-                          value={application.status}
-                          onChange={(event) =>
-                            updateApplicationStatus(
-                              application.id,
-                              event.target
-                                .value as ApplicationStatus
-                            )
-                          }
-                          className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
-                        >
-                          {statusOptions.map((status) => (
-                            <option
-                              key={status}
-                              value={status}
-                            >
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-
-                        <Button variant="outline">
-                          View Candidate
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
+      {/* Empty */}
+      {!loading &&
+        !error &&
+        filteredApplications.length === 0 && (
           <Card>
             <CardContent className="flex min-h-40 items-center justify-center p-6">
               <div className="text-center">
@@ -451,13 +435,158 @@ export default function EmployerApplicationsPage() {
                 </h3>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Try another search.
+                  No candidates have applied to your
+                  jobs yet.
                 </p>
               </div>
             </CardContent>
           </Card>
         )}
-      </section>
+
+      {/* Applications */}
+      {!loading &&
+        !error &&
+        filteredApplications.length > 0 && (
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold">
+                Candidate Applications
+              </h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                {filteredApplications.length}{" "}
+                applications found.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {filteredApplications.map(
+                (application) => (
+                  <Card key={application.id}>
+                    <CardContent className="p-6">
+                      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        {/* Candidate */}
+                        <div className="flex items-start gap-4">
+                          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
+                            {application.candidate
+                              .split(" ")
+                              .map(
+                                (name) =>
+                                  name[0]
+                              )
+                              .join("")
+                              .slice(0, 2)
+                              .toUpperCase()}
+                          </div>
+
+                          <div className="space-y-2">
+                            <div>
+                              <h3 className="font-semibold">
+                                {
+                                  application.candidate
+                                }
+                              </h3>
+
+                              <p className="text-sm text-muted-foreground">
+                                {application.role}
+                              </p>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              {application.skills.map(
+                                (skill) => (
+                                  <Badge
+                                    key={`${application.id}-${skill}`}
+                                    variant="secondary"
+                                  >
+                                    {skill}
+                                  </Badge>
+                                )
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Users className="h-4 w-4" />
+
+                              <span>
+                                Experience:{" "}
+                                {
+                                  application.experience
+                                }
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center lg:flex-col lg:items-end">
+                          <div className="flex items-center gap-2">
+                            <Badge>
+                              {
+                                application.matchScore
+                              }
+                              % Match
+                            </Badge>
+
+                            <Badge
+                              variant={getStatusVariant(
+                                application.status
+                              )}
+                            >
+                              {
+                                application.status
+                              }
+                            </Badge>
+                          </div>
+
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <select
+                              value={
+                                application.status
+                              }
+                              disabled={
+                                updatingId ===
+                                application.id
+                              }
+                              onChange={(event) =>
+                                updateApplicationStatus(
+                                  application.id,
+                                  event.target
+                                    .value as ApplicationStatus
+                                )
+                              }
+                              className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              {statusOptions.map(
+                                (status) => (
+                                  <option
+                                    key={status}
+                                    value={status}
+                                  >
+                                    {status}
+                                  </option>
+                                )
+                              )}
+                            </select>
+
+                            <Link
+                              href={`/employer/candidates/${encodeURIComponent(
+                                application.candidateId
+                              )}`}
+                              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                            >
+                              View Candidate
+                            </Link>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              )}
+            </div>
+          </section>
+        )}
     </div>
   );
 }

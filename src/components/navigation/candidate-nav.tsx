@@ -37,6 +37,10 @@ const navItems = [
     href: "/candidate/applications",
   },
   {
+    label: "Interview Practice",
+    href: "/candidate/interview-practice",
+  },
+  {
     label: "Settings",
     href: "/candidate/settings",
   },

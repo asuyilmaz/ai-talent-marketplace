@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, Save } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -8,63 +11,384 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowLeft,
-  Check,
-  Save,
-} from "lucide-react";
-import { candidateProfile } from "@/data/profile";
+
+type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
+type CandidateResponse = {
+  id?: string;
+  name?: string;
+  email?: string;
+  bio?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  experienceTitle?: string | null;
+  experienceYears?: number | null;
+  skills?: string[] | string | null;
+  error?: string;
+};
+
+function normalizeSkills(
+  skills: CandidateResponse["skills"]
+): string {
+  if (Array.isArray(skills)) {
+    return skills
+      .map((skill) => skill.trim())
+      .filter(Boolean)
+      .join(", ");
+  }
+
+  if (typeof skills === "string") {
+    return skills;
+  }
+
+  return "";
+}
 
 export default function CandidateSettingsPage() {
-  const [name, setName] = useState(candidateProfile.name);
-  const [role, setRole] = useState(candidateProfile.role);
-  const [email, setEmail] = useState(candidateProfile.email);
-  const [location, setLocation] = useState(candidateProfile.location);
-  const [about, setAbout] = useState(candidateProfile.about);
-  const [careerGoal, setCareerGoal] = useState(
-    candidateProfile.careerGoal
-  );
-  const [experience, setExperience] = useState(
-    candidateProfile.experience.title
-  );
-  const [education, setEducation] = useState(
-    candidateProfile.education.program
-  );
-  const [skills, setSkills] = useState(
-    candidateProfile.skills.join(", ")
-  );
+  const router = useRouter();
 
-  const [saved, setSaved] = useState(false);
+  const [candidateId, setCandidateId] =
+    useState("");
 
-  function handleSave() {
-    setSaved(true);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [location, setLocation] = useState("");
+  const [bio, setBio] = useState("");
+  const [experienceTitle, setExperienceTitle] =
+    useState("");
+  const [experienceYears, setExperienceYears] =
+    useState("");
+  const [skills, setSkills] = useState("");
 
-    setTimeout(() => {
+  const [loading, setLoading] =
+    useState(true);
+  const [saving, setSaving] =
+    useState(false);
+  const [saved, setSaved] =
+    useState(false);
+  const [error, setError] =
+    useState("");
+
+  useEffect(() => {
+    async function loadCandidate() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const storedUser =
+          localStorage.getItem("currentUser");
+
+        if (!storedUser) {
+          router.replace("/login");
+          return;
+        }
+
+        const currentUser = JSON.parse(
+          storedUser
+        ) as CurrentUser;
+
+        if (
+          !currentUser.role ||
+          currentUser.role.toLowerCase() !==
+            "candidate"
+        ) {
+          setError(
+            "This page is only available for candidates."
+          );
+          return;
+        }
+
+        setCandidateId(currentUser.id);
+
+        const response = await fetch(
+          `/api/candidates/${encodeURIComponent(
+            currentUser.id
+          )}`,
+          {
+            cache: "no-store",
+          }
+        );
+
+        const data =
+          (await response.json()) as CandidateResponse;
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ||
+              "Failed to load candidate profile."
+          );
+        }
+
+        /*
+         * API artık candidateProfile diye nested
+         * bir obje döndürmüyor.
+         *
+         * Alanlar direkt response üzerinde:
+         * data.name
+         * data.bio
+         * data.skills
+         * vs.
+         */
+
+        setName(
+          data.name ||
+            currentUser.name ||
+            ""
+        );
+
+        setEmail(
+          data.email ||
+            currentUser.email ||
+            ""
+        );
+
+        setPhone(data.phone ?? "");
+        setLocation(data.location ?? "");
+        setBio(data.bio ?? "");
+
+        setExperienceTitle(
+          data.experienceTitle ?? ""
+        );
+
+        setExperienceYears(
+          typeof data.experienceYears ===
+            "number"
+            ? String(
+                data.experienceYears
+              )
+            : ""
+        );
+
+        setSkills(
+          normalizeSkills(data.skills)
+        );
+      } catch (error) {
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to load candidate profile."
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadCandidate();
+  }, [router]);
+
+  async function saveProfile() {
+    if (!candidateId) {
+      setError(
+        "Candidate ID could not be found."
+      );
+      return;
+    }
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email
+      .trim()
+      .toLowerCase();
+
+    if (!trimmedName) {
+      setError("Name is required.");
+      return;
+    }
+
+    if (!trimmedEmail) {
+      setError("Email is required.");
+      return;
+    }
+
+    let parsedExperienceYears:
+      | number
+      | null = null;
+
+    if (experienceYears.trim()) {
+      const numericValue = Number(
+        experienceYears
+      );
+
+      if (
+        !Number.isInteger(numericValue) ||
+        numericValue < 0
+      ) {
+        setError(
+          "Experience years must be a non-negative whole number."
+        );
+        return;
+      }
+
+      parsedExperienceYears =
+        numericValue;
+    }
+
+    try {
+      setSaving(true);
       setSaved(false);
-    }, 2500);
+      setError("");
+
+      const response = await fetch(
+        `/api/candidates/${encodeURIComponent(
+          candidateId
+        )}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            name: trimmedName,
+            email: trimmedEmail,
+            phone: phone.trim(),
+            location:
+              location.trim(),
+            bio: bio.trim(),
+            experienceTitle:
+              experienceTitle.trim(),
+            experienceYears:
+              parsedExperienceYears,
+            skills,
+          }),
+        }
+      );
+
+      const data =
+        (await response.json()) as CandidateResponse;
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ||
+            "Failed to save profile."
+        );
+      }
+
+      const updatedName =
+        data.name || trimmedName;
+
+      const updatedEmail =
+        data.email || trimmedEmail;
+
+      setName(updatedName);
+      setEmail(updatedEmail);
+      setPhone(data.phone ?? "");
+      setLocation(
+        data.location ?? ""
+      );
+      setBio(data.bio ?? "");
+      setExperienceTitle(
+        data.experienceTitle ?? ""
+      );
+
+      setExperienceYears(
+        typeof data.experienceYears ===
+          "number"
+          ? String(
+              data.experienceYears
+            )
+          : ""
+      );
+
+      setSkills(
+        normalizeSkills(
+          data.skills
+        )
+      );
+
+      /*
+       * Header ve diğer client sayfaları da
+       * güncel isim/email görsün.
+       */
+      const storedUser =
+        localStorage.getItem(
+          "currentUser"
+        );
+
+      if (storedUser) {
+        const currentUser =
+          JSON.parse(
+            storedUser
+          ) as CurrentUser;
+
+        localStorage.setItem(
+          "currentUser",
+          JSON.stringify({
+            ...currentUser,
+            name: updatedName,
+            email: updatedEmail,
+          })
+        );
+      }
+
+      setSaved(true);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to save profile."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Settings
+          </h1>
+
+          <p className="mt-2 text-muted-foreground">
+            Loading your profile...
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
-      {/* Header */}
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-semibold tracking-tight">
-          Edit Profile
+          Profile Settings
         </h1>
 
         <p className="mt-2 text-muted-foreground">
-          Update your professional information and career preferences.
+          Update the information shown
+          in your candidate profile and CV.
         </p>
       </div>
 
-      {/* Personal Information */}
+      {saved && (
+        <div className="flex items-center gap-2 rounded-md border px-4 py-3 text-sm">
+          <CheckCircle2 className="h-4 w-4" />
+          Changes saved successfully.
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {error}
+        </div>
+      )}
+
       <Card>
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle>
+            Personal Information
+          </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-5">
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-5 md:grid-cols-2">
             <div className="space-y-2">
               <label
                 htmlFor="name"
@@ -78,162 +402,158 @@ export default function CandidateSettingsPage() {
                 type="text"
                 value={name}
                 onChange={(event) =>
-                  setName(event.target.value)
+                  setName(
+                    event.target.value
+                  )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
               />
             </div>
 
             <div className="space-y-2">
               <label
-                htmlFor="role"
+                htmlFor="email"
                 className="text-sm font-medium"
               >
-                Professional Role
+                Email
               </label>
 
               <input
-                id="role"
-                type="text"
-                value={role}
+                id="email"
+                type="email"
+                value={email}
                 onChange={(event) =>
-                  setRole(event.target.value)
+                  setEmail(
+                    event.target.value
+                  )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="phone"
+                className="text-sm font-medium"
+              >
+                Phone
+              </label>
+
+              <input
+                id="phone"
+                type="text"
+                value={phone}
+                onChange={(event) =>
+                  setPhone(
+                    event.target.value
+                  )
+                }
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="location"
+                className="text-sm font-medium"
+              >
+                Location
+              </label>
+
+              <input
+                id="location"
+                type="text"
+                value={location}
+                onChange={(event) =>
+                  setLocation(
+                    event.target.value
+                  )
+                }
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
               />
             </div>
           </div>
 
           <div className="space-y-2">
             <label
-              htmlFor="email"
+              htmlFor="bio"
               className="text-sm font-medium"
             >
-              Email
+              Professional Summary
             </label>
 
-            <input
-              id="email"
-              type="email"
-              value={email}
+            <textarea
+              id="bio"
+              value={bio}
               onChange={(event) =>
-                setEmail(event.target.value)
+                setBio(
+                  event.target.value
+                )
               }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="location"
-              className="text-sm font-medium"
-            >
-              Location
-            </label>
-
-            <input
-              id="location"
-              type="text"
-              value={location}
-              onChange={(event) =>
-                setLocation(event.target.value)
-              }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              rows={5}
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
             />
           </div>
         </CardContent>
       </Card>
 
-      {/* Professional Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Professional Summary</CardTitle>
+          <CardTitle>
+            Professional Information
+          </CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <label
-              htmlFor="about"
-              className="text-sm font-medium"
-            >
-              About Me
-            </label>
+          <div className="grid gap-5 md:grid-cols-2">
+            <div className="space-y-2">
+              <label
+                htmlFor="experienceTitle"
+                className="text-sm font-medium"
+              >
+                Experience Title
+              </label>
 
-            <textarea
-              id="about"
-              value={about}
-              onChange={(event) =>
-                setAbout(event.target.value)
-              }
-              rows={5}
-              className="w-full resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-            />
-          </div>
+              <input
+                id="experienceTitle"
+                type="text"
+                value={
+                  experienceTitle
+                }
+                onChange={(event) =>
+                  setExperienceTitle(
+                    event.target.value
+                  )
+                }
+                placeholder="e.g. Frontend Developer"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="careerGoal"
-              className="text-sm font-medium"
-            >
-              Career Goal
-            </label>
+            <div className="space-y-2">
+              <label
+                htmlFor="experienceYears"
+                className="text-sm font-medium"
+              >
+                Years of Experience
+              </label>
 
-            <textarea
-              id="careerGoal"
-              value={careerGoal}
-              onChange={(event) =>
-                setCareerGoal(event.target.value)
-              }
-              rows={5}
-              className="w-full resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Career Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Career Information</CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          <div className="space-y-2">
-            <label
-              htmlFor="experience"
-              className="text-sm font-medium"
-            >
-              Experience
-            </label>
-
-            <input
-              id="experience"
-              type="text"
-              value={experience}
-              onChange={(event) =>
-                setExperience(event.target.value)
-              }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="education"
-              className="text-sm font-medium"
-            >
-              Education
-            </label>
-
-            <input
-              id="education"
-              type="text"
-              value={education}
-              onChange={(event) =>
-                setEducation(event.target.value)
-              }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-            />
+              <input
+                id="experienceYears"
+                type="number"
+                min="0"
+                step="1"
+                value={
+                  experienceYears
+                }
+                onChange={(event) =>
+                  setExperienceYears(
+                    event.target.value
+                  )
+                }
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -244,42 +564,50 @@ export default function CandidateSettingsPage() {
               Skills
             </label>
 
-            <input
+            <textarea
               id="skills"
-              type="text"
               value={skills}
               onChange={(event) =>
-                setSkills(event.target.value)
+                setSkills(
+                  event.target.value
+                )
               }
-              className="h-10 w-full rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              rows={3}
+              placeholder="React, TypeScript, Next.js"
+              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
             />
 
             <p className="text-xs text-muted-foreground">
-              Separate your skills with commas.
+              Separate skills with commas.
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-        <Button variant="outline">
-          <ArrowLeft className="mr-2 h-4 w-4" />
+      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() =>
+            router.push(
+              "/candidate/profile"
+            )
+          }
+          disabled={saving}
+        >
           Cancel
         </Button>
 
-        <Button onClick={handleSave}>
-          {saved ? (
-            <>
-              <Check className="mr-2 h-4 w-4" />
-              Changes Saved
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              Save Changes
-            </>
-          )}
+        <Button
+          type="button"
+          onClick={saveProfile}
+          disabled={saving}
+        >
+          <Save className="mr-2 h-4 w-4" />
+
+          {saving
+            ? "Saving..."
+            : "Save Changes"}
         </Button>
       </div>
     </div>

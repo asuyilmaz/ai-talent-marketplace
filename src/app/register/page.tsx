@@ -113,7 +113,7 @@ export default function RegisterPage() {
           </CardTitle>
 
           <p className="text-sm text-muted-foreground">
-            Join the AI Talent Marketplace.
+            Join the TALNIVO.
           </p>
         </CardHeader>
 

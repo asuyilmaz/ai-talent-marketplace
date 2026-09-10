@@ -18,48 +18,128 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+type CurrentUser = {
+  id: string;
+  name: string;
+  email: string;
+  role: "candidate" | "employer";
+};
+
+type CreateJobResponse = {
+  message?: string;
+  job?: {
+    id: string;
+    title: string;
+    description: string;
+    company: string;
+    skills: string[];
+    workType: string;
+    employmentType: string;
+    applications: number;
+    matchRate: number;
+    status: string;
+  };
+};
+
 export default function CreateJobPage() {
   const router = useRouter();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [skills, setSkills] = useState("");
-  const [workType, setWorkType] = useState("Remote");
-  const [employmentType, setEmploymentType] = useState("Full-time");
-  const [saved, setSaved] = useState(false);
+  const [workType, setWorkType] =
+    useState("Remote");
+  const [employmentType, setEmploymentType] =
+    useState("Full-time");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(
+    event: React.FormEvent<HTMLFormElement>
+  ) {
     event.preventDefault();
 
-    const newJob = {
-      id: `employer-job-${Date.now()}`,
-      title: title.trim(),
-      description: description.trim(),
-      skills: skills
+    setError("");
+    setLoading(true);
+
+    try {
+      const storedUser =
+        localStorage.getItem("currentUser");
+
+      if (!storedUser) {
+        router.push("/login");
+        return;
+      }
+
+      let currentUser: CurrentUser;
+
+      try {
+        currentUser = JSON.parse(storedUser);
+      } catch {
+        localStorage.removeItem("currentUser");
+        router.push("/login");
+        return;
+      }
+
+      if (currentUser.role !== "employer") {
+        setError(
+          "Only employer accounts can create jobs."
+        );
+        return;
+      }
+
+      const skillList = skills
         .split(",")
         .map((skill) => skill.trim())
-        .filter(Boolean),
-      workType,
-      employmentType,
-      applications: 0,
-      matchRate: 0,
-      status: "Published",
-    };
+        .filter(Boolean);
 
-    const existingJobs = JSON.parse(
-      localStorage.getItem("employerJobs") || "[]"
-    );
+      if (skillList.length === 0) {
+        setError(
+          "Please enter at least one required skill."
+        );
+        return;
+      }
 
-    localStorage.setItem(
-      "employerJobs",
-      JSON.stringify([newJob, ...existingJobs])
-    );
+      const response = await fetch("/api/jobs", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: currentUser.id,
+          title,
+          description,
+          skills: skillList,
+          workType,
+          employmentType,
+        }),
+      });
 
-    setSaved(true);
+      const data =
+        (await response.json()) as CreateJobResponse;
 
-    setTimeout(() => {
-      router.push("/employer/jobs");
-    }, 800);
+      if (!response.ok || !data.job) {
+        setError(
+          data.message ||
+            "Unable to create the job."
+        );
+        return;
+      }
+
+      setSaved(true);
+
+      setTimeout(() => {
+        router.push("/employer/jobs");
+      }, 800);
+    } catch {
+      setError(
+        "Unable to connect to the server. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -91,11 +171,16 @@ export default function CreateJobPage() {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+      >
         {/* Basic Information */}
         <Card>
           <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
+            <CardTitle>
+              Basic Information
+            </CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-5">
@@ -171,7 +256,9 @@ export default function CreateJobPage() {
         {/* Job Details */}
         <Card>
           <CardHeader>
-            <CardTitle>Job Details</CardTitle>
+            <CardTitle>
+              Job Details
+            </CardTitle>
           </CardHeader>
 
           <CardContent className="space-y-5">
@@ -187,13 +274,23 @@ export default function CreateJobPage() {
                 id="workType"
                 value={workType}
                 onChange={(event) =>
-                  setWorkType(event.target.value)
+                  setWorkType(
+                    event.target.value
+                  )
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
               >
-                <option value="Remote">Remote</option>
-                <option value="Hybrid">Hybrid</option>
-                <option value="On-site">On-site</option>
+                <option value="Remote">
+                  Remote
+                </option>
+
+                <option value="Hybrid">
+                  Hybrid
+                </option>
+
+                <option value="On-site">
+                  On-site
+                </option>
               </select>
             </div>
 
@@ -209,13 +306,23 @@ export default function CreateJobPage() {
                 id="employmentType"
                 value={employmentType}
                 onChange={(event) =>
-                  setEmploymentType(event.target.value)
+                  setEmploymentType(
+                    event.target.value
+                  )
                 }
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
               >
-                <option value="Full-time">Full-time</option>
-                <option value="Part-time">Part-time</option>
-                <option value="Contract">Contract</option>
+                <option value="Full-time">
+                  Full-time
+                </option>
+
+                <option value="Part-time">
+                  Part-time
+                </option>
+
+                <option value="Contract">
+                  Contract
+                </option>
               </select>
             </div>
 
@@ -237,6 +344,14 @@ export default function CreateJobPage() {
           </CardContent>
         </Card>
 
+        {error && (
+          <div className="rounded-md border border-destructive/30 bg-destructive/10 p-3">
+            <p className="text-sm text-destructive">
+              {error}
+            </p>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <Link
@@ -246,9 +361,17 @@ export default function CreateJobPage() {
             Cancel
           </Link>
 
-          <Button type="submit">
+          <Button
+            type="submit"
+            disabled={loading}
+          >
             <Save className="mr-2 h-4 w-4" />
-            {saved ? "Job Created" : "Create Job"}
+
+            {loading
+              ? "Creating..."
+              : saved
+                ? "Job Created"
+                : "Create Job"}
           </Button>
         </div>
       </form>

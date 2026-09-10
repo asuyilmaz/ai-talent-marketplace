@@ -19,130 +19,293 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  calculateSkillMatch,
+  getMatchLabel,
+} from "@/lib/skill-match";
 
-import { candidateProfile } from "@/data/profile";
-import { recommendedJobs } from "@/data/jobs";
-
-type Application = {
+type Job = {
   id: string;
-  candidateId: string;
-  candidate: string;
-  jobId: string;
-  role: string;
+  title: string;
+  description: string;
   company: string;
-  matchScore: number;
-  status: "Applied";
-  experience: string;
+  companyId: string;
   skills: string[];
-  appliedAt: string;
+  workType: string;
+  employmentType: string;
+  applications: number;
 };
+
+type JobResponse = {
+  message?: string;
+  job?: Job;
+};
+
+type CandidateResponse = {
+  id: string;
+  skills?: string[] | string | null;
+  message?: string;
+};
+
+type CandidateApplication = {
+  id: string;
+  jobId: string;
+};
+
+type ApplicationsResponse = {
+  message?: string;
+  applications?: CandidateApplication[];
+};
+
+type ApplicationResponse = {
+  message?: string;
+  application?: {
+    id: string;
+    jobId: string;
+    role: string;
+    company: string;
+    status: string;
+    matchScore: number;
+    appliedAt: string;
+  };
+};
+
+type CurrentUser = {
+  id: string;
+  name?: string;
+  email?: string;
+  role?: string;
+};
+
+function normalizeCandidateSkills(
+  skills: CandidateResponse["skills"]
+): string[] {
+  if (Array.isArray(skills)) {
+    return skills
+      .map((skill) => skill.trim())
+      .filter(Boolean);
+  }
+
+  if (typeof skills === "string") {
+    return skills
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter(Boolean);
+  }
+
+  return [];
+}
 
 export default function JobDetailsPage() {
   const params = useParams();
+  const rawJobId = params.jobId;
 
-  const jobId = Array.isArray(params.jobId)
-    ? params.jobId[0]
-    : params.jobId;
+  const jobId =
+    typeof rawJobId === "string"
+      ? rawJobId
+      : Array.isArray(rawJobId)
+        ? rawJobId[0]
+        : undefined;
 
-  const job = recommendedJobs.find(
-    (item) => item.id === jobId
-  );
-
+  const [job, setJob] = useState<Job | null>(null);
+  const [matchScore, setMatchScore] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [applying, setApplying] = useState(false);
   const [applied, setApplied] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!jobId) {
+    if (typeof jobId !== "string" || jobId.length === 0) {
+      setLoading(false);
+      setError("Job ID is missing.");
       return;
     }
 
-    const storedApplications =
-      localStorage.getItem("candidateApplications");
+    const currentJobId = jobId;
 
-    if (!storedApplications) {
-      return;
-    }
-
-    try {
-      const applications: Application[] =
-        JSON.parse(storedApplications);
-
-      const alreadyApplied = applications.some(
-        (application) =>
-          application.jobId === jobId &&
-          application.candidate === candidateProfile.name
-      );
-
-      setApplied(alreadyApplied);
-    } catch {
-      setApplied(false);
-    }
-  }, [jobId]);
-
-  function handleApply() {
-    if (!job || applied) {
-      return;
-    }
-
-    const newApplication: Application = {
-      id: `application-${Date.now()}`,
-      candidateId: "candidate-1",
-      candidate: candidateProfile.name,
-      jobId: job.id,
-      role: job.title,
-      company: job.company,
-      matchScore: job.matchScore,
-      status: "Applied",
-      experience: candidateProfile.experience.title,
-      skills: job.skills,
-      appliedAt: new Date().toISOString(),
-    };
-
-    const storedApplications =
-      localStorage.getItem("candidateApplications");
-
-    let applications: Application[] = [];
-
-    if (storedApplications) {
+    async function loadJob() {
       try {
-        const parsed = JSON.parse(storedApplications);
+        const storedUser = localStorage.getItem("currentUser");
 
-        if (Array.isArray(parsed)) {
-          applications = parsed;
+        if (!storedUser) {
+          window.location.href = "/login";
+          return;
         }
+
+        let currentUser: CurrentUser;
+
+        try {
+          currentUser = JSON.parse(storedUser) as CurrentUser;
+        } catch {
+          localStorage.removeItem("currentUser");
+          window.location.href = "/login";
+          return;
+        }
+
+        if (
+          !currentUser.role ||
+          currentUser.role.toLowerCase() !== "candidate"
+        ) {
+          window.location.href = "/employer/dashboard";
+          return;
+        }
+
+        const [jobResponse, candidateResponse, applicationsResponse] =
+          await Promise.all([
+            fetch(
+              `/api/jobs/${encodeURIComponent(currentJobId)}`,
+              {
+                method: "GET",
+                cache: "no-store",
+              }
+            ),
+            fetch(
+              `/api/candidates/${encodeURIComponent(
+                currentUser.id
+              )}`,
+              {
+                method: "GET",
+                cache: "no-store",
+              }
+            ),
+            fetch(
+              `/api/applications?candidateId=${encodeURIComponent(
+                currentUser.id
+              )}`,
+              {
+                method: "GET",
+                cache: "no-store",
+              }
+            ),
+          ]);
+
+        const jobData = (await jobResponse.json()) as JobResponse;
+        const candidateData =
+          (await candidateResponse.json()) as CandidateResponse;
+        const applicationsData =
+          (await applicationsResponse.json()) as ApplicationsResponse;
+
+        if (!jobResponse.ok || !jobData.job) {
+          setError(jobData.message || "Job not found.");
+          return;
+        }
+
+        if (!candidateResponse.ok) {
+          setError(
+            candidateData.message ||
+              "Unable to load your candidate profile."
+          );
+          return;
+        }
+
+        if (!applicationsResponse.ok) {
+          setError(
+            applicationsData.message ||
+              "Unable to check your applications."
+          );
+          return;
+        }
+
+        const candidateSkills = normalizeCandidateSkills(
+          candidateData.skills
+        );
+
+        setJob(jobData.job);
+        setMatchScore(
+          calculateSkillMatch(candidateSkills, jobData.job.skills)
+        );
+        setApplied(
+          (applicationsData.applications ?? []).some(
+            (application) => application.jobId === currentJobId
+          )
+        );
       } catch {
-        applications = [];
+        setError("Unable to connect to the server.");
+      } finally {
+        setLoading(false);
       }
     }
 
-    const alreadyExists = applications.some(
-      (application) =>
-        application.jobId === job.id &&
-        application.candidate === candidateProfile.name
-    );
+    loadJob();
+  }, [jobId]);
 
-    if (alreadyExists) {
-      setApplied(true);
+  async function handleApply() {
+    if (!job || applying || applied) {
       return;
     }
 
-    localStorage.setItem(
-      "candidateApplications",
-      JSON.stringify([
-        newApplication,
-        ...applications,
-      ])
-    );
+    setError("");
+    setApplying(true);
 
-    setApplied(true);
-    setSaved(true);
+    try {
+      const storedUser = localStorage.getItem("currentUser");
 
-    setTimeout(() => {
-      setSaved(false);
-    }, 2500);
+      if (!storedUser) {
+        window.location.href = "/login";
+        return;
+      }
+
+      let currentUser: CurrentUser;
+
+      try {
+        currentUser = JSON.parse(storedUser) as CurrentUser;
+      } catch {
+        localStorage.removeItem("currentUser");
+        window.location.href = "/login";
+        return;
+      }
+
+      if (
+        !currentUser.role ||
+        currentUser.role.toLowerCase() !== "candidate"
+      ) {
+        setError("Only candidate accounts can apply for jobs.");
+        return;
+      }
+
+      const response = await fetch("/api/applications", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          candidateId: currentUser.id,
+          jobId: job.id,
+        }),
+      });
+
+      const data =
+        (await response.json()) as ApplicationResponse;
+
+      if (!response.ok) {
+        if (response.status === 409) {
+          setApplied(true);
+          return;
+        }
+
+        setError(
+          data.message || "Unable to submit your application."
+        );
+        return;
+      }
+
+      if (data.application) {
+        setApplied(true);
+        setSaved(true);
+
+        setTimeout(() => {
+          setSaved(false);
+        }, 2500);
+      }
+    } catch {
+      setError("Unable to connect to the server.");
+    } finally {
+      setApplying(false);
+    }
   }
 
-  if (!job) {
+  if (loading) {
     return (
       <div className="space-y-6">
         <Link
@@ -155,13 +318,34 @@ export default function JobDetailsPage() {
 
         <Card>
           <CardContent className="flex min-h-48 items-center justify-center">
+            <p className="text-sm text-muted-foreground">
+              Loading job...
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!job || error) {
+    return (
+      <div className="space-y-6">
+        <Link
+          href="/candidate/jobs"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Jobs
+        </Link>
+
+        <Card>
+          <CardContent className="flex min-h-48 items-center justify-center p-6">
             <div className="text-center">
-              <h2 className="text-lg font-semibold">
-                Job not found
-              </h2>
+              <h2 className="text-lg font-semibold">Job not found</h2>
 
               <p className="mt-2 text-sm text-muted-foreground">
-                The job you are looking for could not be found.
+                {error ||
+                  "The job you are looking for could not be found."}
               </p>
             </div>
           </CardContent>
@@ -172,7 +356,6 @@ export default function JobDetailsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Back */}
       <Link
         href="/candidate/jobs"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
@@ -181,7 +364,6 @@ export default function JobDetailsPage() {
         Back to Jobs
       </Link>
 
-      {/* Header */}
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
@@ -190,7 +372,7 @@ export default function JobDetailsPage() {
                 <Sparkles className="h-5 w-5" />
 
                 <span className="text-sm font-medium">
-                  AI Recommended
+                  Skill Match
                 </span>
               </div>
 
@@ -217,40 +399,31 @@ export default function JobDetailsPage() {
 
             <div className="rounded-lg border p-5 text-center">
               <p className="text-sm text-muted-foreground">
-                AI Match
+                Skill Match
               </p>
 
               <p className="mt-1 text-4xl font-semibold">
-                {job.matchScore}%
+                {matchScore}%
               </p>
 
               <Badge className="mt-2">
-                Strong Match
+                {getMatchLabel(matchScore)}
               </Badge>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Content */}
       <section className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>About the Position</CardTitle>
           </CardHeader>
 
-          <CardContent className="space-y-4">
-            <p className="text-sm leading-7 text-muted-foreground">
-              This position is a strong match for your current
-              skills and career goals. You will have the
-              opportunity to work with modern technologies and
-              contribute to meaningful software projects.
-            </p>
-
-            <p className="text-sm leading-7 text-muted-foreground">
-              The role offers an environment where you can
-              continue developing your technical skills while
-              working with an experienced team.
+          <CardContent>
+            <p className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
+              {job.description ||
+                "No job description was provided."}
             </p>
           </CardContent>
         </Card>
@@ -261,53 +434,62 @@ export default function JobDetailsPage() {
           </CardHeader>
 
           <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {job.skills.map((skill) => (
-                <Badge
-                  key={skill}
-                  variant="secondary"
-                >
-                  {skill}
-                </Badge>
-              ))}
-            </div>
+            {job.skills.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {job.skills.map((skill) => (
+                  <Badge
+                    key={`${job.id}-${skill}`}
+                    variant="secondary"
+                  >
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No required skills were listed.
+              </p>
+            )}
           </CardContent>
         </Card>
       </section>
 
-      {/* Application */}
       <Card>
         <CardHeader>
           <CardTitle>
-            {applied
-              ? "Application Submitted"
-              : "Ready to Apply?"}
+            {applied ? "Application Submitted" : "Ready to Apply?"}
           </CardTitle>
 
           <p className="text-sm text-muted-foreground">
             {applied
-              ? "Your application has been recorded for this position."
-              : `Your profile is a ${job.matchScore}% match for this position.`}
+              ? "You have already applied for this position."
+              : `Your profile has a ${matchScore}% skill match for this position.`}
           </p>
         </CardHeader>
 
         <CardContent>
           {applied ? (
-            <Button
-              variant="outline"
-              disabled
-            >
+            <Button variant="outline" disabled>
               <CheckCircle2 className="mr-2 h-4 w-4" />
               {saved ? "Application Saved" : "Already Applied"}
             </Button>
           ) : (
-            <Button
-              size="lg"
-              onClick={handleApply}
-            >
-              Apply Now
-              <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
-            </Button>
+            <>
+              {error && (
+                <div className="mb-4 rounded-md border border-destructive/30 bg-destructive/10 p-3">
+                  <p className="text-sm text-destructive">{error}</p>
+                </div>
+              )}
+
+              <Button
+                size="lg"
+                onClick={handleApply}
+                disabled={applying}
+              >
+                {applying ? "Applying..." : "Apply Now"}
+                <ArrowLeft className="ml-2 h-4 w-4 rotate-180" />
+              </Button>
+            </>
           )}
         </CardContent>
       </Card>
