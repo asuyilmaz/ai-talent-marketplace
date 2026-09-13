@@ -4,17 +4,9 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
-  Briefcase,
   Search,
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 
 type ApplicationStatus =
   | "Applied"
@@ -166,28 +158,6 @@ export default function CandidateApplicationsPage() {
         application.status === "Hired"
     ).length;
 
-  function getStatusVariant(
-    status: ApplicationStatus
-  ) {
-    if (status === "Rejected") {
-      return "destructive" as const;
-    }
-
-    if (
-      status === "Interview" ||
-      status === "Offer" ||
-      status === "Hired"
-    ) {
-      return "default" as const;
-    }
-
-    if (status === "Reviewing") {
-      return "secondary" as const;
-    }
-
-    return "outline" as const;
-  }
-
   function formatAppliedAt(
     appliedAt: string
   ) {
@@ -205,254 +175,154 @@ export default function CandidateApplicationsPage() {
     ).format(date);
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <Briefcase className="h-5 w-5" />
-
-          <span className="text-sm font-medium">
-            Career Activity
-          </span>
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-8 border-b border-black/15 pb-9 lg:grid-cols-[1fr_460px] lg:items-end">
+        <div>
+          <p className="tn-index text-[#6d5dfc]">Application ledger / 03</p>
+          <h1 className="mt-4 text-5xl font-black tracking-[-.065em] text-[#101114] sm:text-6xl">
+            Know exactly where every application stands.
+          </h1>
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          My Applications
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Track your applications and follow your recruitment progress.
-        </p>
-      </div>
-
-      {/* Overview */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Total Applications
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {totalApplications}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Jobs you have applied to
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Reviewing
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {reviewingCount}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Applications under review
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Interviews
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {interviewCount}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Interview-stage applications
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base font-medium">
-              Hired
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {hiredCount}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Successful applications
-            </p>
-          </CardContent>
-        </Card>
+        <div className="grid grid-cols-4 border border-black/15">
+          {[
+            ["Total", totalApplications],
+            ["Review", reviewingCount],
+            ["Interview", interviewCount],
+            ["Hired", hiredCount],
+          ].map(([label, value], index) => (
+            <div key={String(label)} className={`${index > 0 ? "border-l border-black/15" : ""} p-3 sm:p-4`}>
+              <p className="tn-index text-[#8a898d]">{label}</p>
+              <p className="mt-2 text-2xl font-black tracking-[-.05em]">{value}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
-      {/* Search */}
-      <Card>
-        <CardContent className="flex items-center gap-3 p-5">
-          <Search className="h-4 w-4 text-muted-foreground" />
-
+      <section className="border-b border-black/15 pb-7">
+        <label htmlFor="application-search" className="tn-index text-[#8a898d]">
+          Filter your pipeline
+        </label>
+        <div className="mt-3 flex items-center gap-3 border-b border-black pb-3">
+          <Search className="h-4 w-4 text-[#8a898d]" />
           <input
-            type="text"
-            placeholder="Search jobs, companies or skills..."
+            id="application-search"
+            name="applicationSearch"
+            type="search"
             value={search}
-            onChange={(event) =>
-              setSearch(event.target.value)
-            }
-            className="h-10 flex-1 bg-transparent text-sm outline-none"
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Role, company or skill"
+            className="w-full bg-transparent text-base font-semibold outline-none placeholder:text-[#aaa9ad]"
           />
-        </CardContent>
-      </Card>
+        </div>
+      </section>
 
-      {/* Loading */}
       {loading && (
-        <Card>
-          <CardContent className="flex min-h-48 items-center justify-center">
-            <p className="text-sm text-muted-foreground">
-              Loading applications...
-            </p>
-          </CardContent>
-        </Card>
+        <div className="border-y border-black/10 py-16 text-sm text-[#77767a]">
+          Loading application ledger...
+        </div>
       )}
 
-      {/* Error */}
       {!loading && error && (
-        <Card>
-          <CardContent className="flex min-h-48 items-center justify-center p-6">
-            <p className="text-sm text-destructive">
-              {error}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="border border-destructive/25 bg-destructive/5 p-5 text-sm text-destructive">
+          {error}
+        </div>
       )}
 
-      {/* Empty */}
-      {!loading &&
-        !error &&
-        filteredApplications.length === 0 && (
-          <Card>
-            <CardContent className="flex min-h-48 items-center justify-center p-6">
-              <div className="text-center">
-                <h3 className="font-medium">
-                  No applications found
-                </h3>
+      {!loading && !error && filteredApplications.length > 0 && (
+        <section>
+          <div className="border-t border-black">
+            {filteredApplications.map((application, index) => (
+              <article
+                key={application.id}
+                className="grid gap-5 border-b border-black/15 py-7 lg:grid-cols-[60px_1.2fr_180px_140px_150px] lg:items-center"
+              >
+                <span className="font-mono text-xs text-[#9b9a9e]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  You have not applied to a matching job yet.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                <div>
+                  <h2 className="text-xl font-black tracking-[-.035em]">{application.role}</h2>
+                  <p className="mt-1 text-sm text-[#77767a]">{application.company}</p>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {application.skills.slice(0, 5).map((skill) => (
+                      <span
+                        key={`${application.id}-${skill}`}
+                        className="border border-black/15 px-2 py-1 text-[10px] font-bold"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-[11px] text-[#9b9a9e]">
+                    Applied {formatAppliedAt(application.appliedAt)}
+                  </p>
+                </div>
 
-      {/* Application List */}
-      {!loading &&
-        !error &&
-        filteredApplications.length > 0 && (
-          <section className="space-y-4">
-            <div>
-              <h2 className="text-xl font-semibold">
-                Application History
-              </h2>
+                <div>
+                  <p className="tn-index text-[#8a898d]">Match signal</p>
+                  <p className="mt-1 text-3xl font-black tracking-[-.05em]">
+                    {application.matchScore}<span className="text-sm text-[#8a898d]">%</span>
+                  </p>
+                </div>
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                Your latest job applications and their current status.
-              </p>
-            </div>
+                <div>
+                  <p className="tn-index text-[#8a898d]">Status</p>
+                  <span
+                    className={`mt-2 inline-flex border px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] ${
+                      application.status === "Rejected"
+                        ? "border-destructive/35 text-destructive"
+                        : application.status === "Hired" || application.status === "Offer"
+                        ? "border-black bg-black text-white"
+                        : application.status === "Interview"
+                        ? "border-[#6d5dfc] bg-[#6d5dfc] text-white"
+                        : "border-black/20 text-[#55545a]"
+                    }`}
+                  >
+                    {application.status}
+                  </span>
+                </div>
 
-            <div className="space-y-4">
-              {filteredApplications.map(
-                (application) => (
-                  <Card key={application.id}>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                        <div className="space-y-3">
-                          <div>
-                            <h3 className="text-lg font-semibold">
-                              {application.role}
-                            </h3>
+                {application.jobId ? (
+                  <Link
+                    href={`/candidate/jobs/${application.jobId}`}
+                    className="inline-flex h-10 items-center justify-center gap-2 border border-black/20 px-4 text-xs font-black uppercase tracking-[.1em] transition hover:border-black hover:bg-black hover:text-white"
+                  >
+                    View role <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                ) : (
+                  <span className="text-xs text-[#aaa9ad]">Role unavailable</span>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
-                            <p className="text-sm text-muted-foreground">
-                              {application.company}
-                            </p>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            {application.skills.map(
-                              (skill) => (
-                                <Badge
-                                  key={`${application.id}-${skill}`}
-                                  variant="secondary"
-                                >
-                                  {skill}
-                                </Badge>
-                              )
-                            )}
-                          </div>
-
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            <span>
-                              AI Match:{" "}
-                              <span className="font-medium text-foreground">
-                                {
-                                  application.matchScore
-                                }
-                                %
-                              </span>
-                            </span>
-
-                            {application.appliedAt && (
-                              <span>
-                                Applied{" "}
-                                {formatAppliedAt(
-                                  application.appliedAt
-                                )}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
-                          <Badge
-                            variant={getStatusVariant(
-                              application.status
-                            )}
-                          >
-                            {application.status}
-                          </Badge>
-
-                          <Link
-                            href={`/candidate/jobs/${encodeURIComponent(
-                              application.jobId
-                            )}`}
-                            className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-                          >
-                            View Job
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Link>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )
-              )}
-            </div>
-          </section>
-        )}
+      {!loading && !error && filteredApplications.length === 0 && (
+        <div className="grid gap-5 border-y border-black/15 py-14 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <p className="tn-index text-[#8a898d]">No entries</p>
+            <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">
+              {applications.length === 0 ? "Your application ledger is empty." : "No application matches that search."}
+            </h2>
+            <p className="mt-2 text-sm text-[#77767a]">
+              {applications.length === 0
+                ? "Explore the market and apply to a role to start tracking progress here."
+                : "Try another role, company, or skill."}
+            </p>
+          </div>
+          {applications.length === 0 && (
+            <Link
+              href="/candidate/jobs"
+              className="inline-flex h-11 items-center justify-center gap-2 border border-black bg-black px-5 text-xs font-black uppercase tracking-[.12em] text-white"
+            >
+              Explore roles <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -9,20 +9,12 @@ import {
 
 import {
   ArrowRight,
-  BriefcaseBusiness,
-  Building2,
-  FileText,
-  Sparkles,
-  Users,
 } from "lucide-react";
 
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 type CurrentUser = {
@@ -132,14 +124,6 @@ function isCreatedThisWeek(
   return (
     createdAt >= sevenDaysAgo
   );
-}
-
-function getStatusVariant(
-  published: boolean
-): "default" | "secondary" {
-  return published
-    ? "default"
-    : "secondary";
 }
 
 export default function EmployerDashboard() {
@@ -458,382 +442,132 @@ export default function EmployerDashboard() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-
-          <span className="text-sm font-medium">
-            Employer Overview
-          </span>
+    <div>
+      <section className="grid border-b border-black/10 pb-10 lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-14">
+        <div>
+          <div className="flex items-center gap-3">
+            <span className="tn-index">01 / Hiring desk</span>
+            <span className="h-px w-12 bg-[#5b3df5]" />
+          </div>
+          <h1 className="mt-6 max-w-4xl text-[clamp(3rem,5.6vw,6rem)] font-black leading-[.9] tracking-[-.07em]">
+            {company?.name || "Your company"}<br />
+            <span className="text-[#5b3df5]">is hiring.</span>
+          </h1>
+          <p className="mt-7 max-w-2xl text-sm leading-6 text-[#626166]">
+            One operational view of roles, applicants and the talent pool — arranged around decisions, not dashboard decoration.
+          </p>
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Employer Dashboard
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Track your jobs,
-          applications and candidate
-          activity.
-        </p>
-      </div>
-
-      {/* Overview */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Active Jobs
-              </CardTitle>
-
-              <BriefcaseBusiness className="h-5 w-5 text-muted-foreground" />
+        <div className="mt-10 grid grid-cols-2 border-t border-l border-black/10 lg:mt-0">
+          {[
+            [company?.openPositions ?? activeJobs.length, "Active roles"],
+            [applications.length, "Applications"],
+            [candidates.length, "Talent pool"],
+            [newCandidates.length, "New this week"],
+          ].map(([value, label]) => (
+            <div key={String(label)} className="border-b border-r border-black/10 p-5">
+              <p className="text-4xl font-black tracking-[-.055em]">{value}</p>
+              <p className="tn-index mt-2">{label}</p>
             </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {company?.openPositions ??
-                activeJobs.length}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Published positions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Applications
-              </CardTitle>
-
-              <FileText className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {applications.length}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Total applications
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Candidates
-              </CardTitle>
-
-              <Users className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {candidates.length}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Available candidate
-              profiles
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                New This Week
-              </CardTitle>
-
-              <Users className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {newCandidates.length}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Recently joined
-              candidates
-            </p>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
       </section>
 
-      {/* Recent Jobs */}
-      <section className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">
-              Recent Job Postings
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Your latest job
-              postings and applicant
-              activity.
-            </p>
-          </div>
-
+      <section className="grid border-b border-black/10 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="border-b border-black/10 py-8 lg:border-b-0 lg:border-r lg:pr-8">
+          <p className="tn-index">02 / Open channels</p>
+          <h2 className="mt-4 text-2xl font-black tracking-[-.035em]">Roles currently shaping the pipeline.</h2>
           <Link href="/employer/jobs/create">
-            <Button>
-              Create Job
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <Button className="mt-7">Create role <ArrowRight className="ml-2 h-4 w-4" /></Button>
           </Link>
         </div>
 
-        {recentJobs.length === 0 ? (
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground">
-                No job postings yet.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {recentJobs.map(
-              (job) => {
-                const applicationCount =
-                  applicationsByJob.get(
-                    job.id
-                  ) ??
-                  job.applicationCount ??
-                  0;
-
-                return (
-                  <Card key={job.id}>
-                    <CardContent className="p-6">
-                      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                          <h3 className="text-lg font-semibold">
-                            {
-                              job.title
-                            }
-                          </h3>
-
-                          <div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                            <span className="flex items-center gap-2">
-                              <Users className="h-4 w-4" />
-                              {
-                                applicationCount
-                              }{" "}
-                              application
-                              {applicationCount ===
-                              1
-                                ? ""
-                                : "s"}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center justify-between gap-4 sm:justify-end">
-                          <Badge
-                            variant={getStatusVariant(
-                              job.published
-                            )}
-                          >
-                            {job.published
-                              ? "Published"
-                              : "Draft"}
-                          </Badge>
-
-                          <Link
-                            href={`/employer/jobs/${encodeURIComponent(
-                              job.id
-                            )}`}
-                          >
-                            <Button variant="outline">
-                              View Job
-                              <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                );
-              }
-            )}
-          </div>
-        )}
+        <div className="lg:pl-8">
+          {recentJobs.length === 0 ? (
+            <p className="py-10 text-sm text-[#77767b]">No job postings yet.</p>
+          ) : recentJobs.map((job, index) => {
+            const count = applicationsByJob.get(job.id) ?? job.applicationCount ?? 0;
+            return (
+              <Link
+                key={job.id}
+                href={`/employer/jobs/${encodeURIComponent(job.id)}`}
+                className="group grid gap-4 border-b border-black/10 py-7 last:border-b-0 sm:grid-cols-[64px_minmax(0,1fr)_150px] sm:items-center"
+              >
+                <span className="font-mono text-xs text-[#9a989d]">{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-xl font-black tracking-[-.025em] transition group-hover:text-[#5b3df5]">{job.title}</h3>
+                    <span className={`text-[9px] font-black uppercase tracking-[.15em] ${job.published ? "text-emerald-700" : "text-[#8a898d]"}`}>
+                      {job.published ? "● live" : "○ draft"}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-[#77767b]">{job.workType || "Flexible"} · {job.employmentType || "Role"}</p>
+                </div>
+                <div className="sm:text-right">
+                  <p className="text-3xl font-black tracking-[-.05em]">{count}</p>
+                  <p className="tn-index mt-1">applications</p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
       </section>
 
-      {/* Recent Candidates */}
-      <section className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">
-              Recent Candidates
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Recently created
-              candidate profiles.
-            </p>
+      <section className="grid border-b border-black/10 lg:grid-cols-[.85fr_1.15fr]">
+        <div className="border-b border-black/10 py-9 lg:border-b-0 lg:border-r lg:pr-10">
+          <p className="tn-index">03 / Pipeline pressure</p>
+          <p className="mt-5 text-7xl font-black tracking-[-.075em]">{applications.length}</p>
+          <p className="mt-2 max-w-xs text-sm leading-6 text-[#626166]">candidate applications have entered your active hiring system.</p>
+          <div className="mt-8 flex h-20 items-end gap-1.5 border-b border-black/20 pb-0">
+            {[34,56,42,76,60,88,70,95,78].map((h, i) => (
+              <span key={i} className="w-full bg-[#101114]" style={{ height: `${h * .62}px` }} />
+            ))}
           </div>
-
-          <Link href="/employer/candidates">
-            <Button variant="outline">
-              View All Candidates
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </Link>
+          <Link href="/employer/applications" className="mt-6 inline-flex text-xs font-black text-[#5b3df5]">Open pipeline →</Link>
         </div>
 
-        {recentCandidates.length ===
-        0 ? (
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground">
-                No candidates are
-                available yet.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {recentCandidates.map(
-              (candidate) => (
-                <Card
-                  key={candidate.id}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-muted font-semibold">
-                          {getInitials(
-                            candidate.name
-                          )}
-                        </div>
-
-                        <div>
-                          <h3 className="font-semibold">
-                            {
-                              candidate.name
-                            }
-                          </h3>
-
-                          <p className="text-sm text-muted-foreground">
-                            {candidate.experienceTitle ||
-                              "Candidate"}
-                          </p>
-
-                          {candidate
-                            .skills
-                            .length >
-                            0 && (
-                            <div className="mt-2 flex flex-wrap gap-2">
-                              {candidate.skills
-                                .slice(
-                                  0,
-                                  4
-                                )
-                                .map(
-                                  (
-                                    skill
-                                  ) => (
-                                    <Badge
-                                      key={
-                                        skill
-                                      }
-                                      variant="secondary"
-                                    >
-                                      {
-                                        skill
-                                      }
-                                    </Badge>
-                                  )
-                                )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <Link
-                        href={`/employer/candidates/${encodeURIComponent(
-                          candidate.id
-                        )}`}
-                      >
-                        <Button variant="outline">
-                          View Candidate
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            )}
-          </div>
-        )}
-      </section>
-
-      {/* Company Summary */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-
-            <CardTitle>
-              Company Summary
-            </CardTitle>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <div className="rounded-lg border p-4">
-            <p className="text-sm leading-6 text-muted-foreground">
-              {company?.name ??
-                "Your company"}{" "}
-              currently has{" "}
-              {activeJobs.length}{" "}
-              published job
-              {activeJobs.length === 1
-                ? ""
-                : "s"}{" "}
-              and has received{" "}
-              {applications.length}{" "}
-              application
-              {applications.length ===
-              1
-                ? ""
-                : "s"}.
-            </p>
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Link href="/employer/jobs">
-                <Button variant="outline">
-                  View Jobs
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-
-              <Link href="/employer/applications">
-                <Button variant="outline">
-                  View Applications
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
+        <div className="py-9 lg:pl-10">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="tn-index">04 / Fresh talent</p>
+              <h2 className="mt-3 text-2xl font-black tracking-[-.035em]">Recently added profiles.</h2>
             </div>
+            <Link href="/employer/candidates" className="hidden text-xs font-black sm:block">Explore all →</Link>
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="mt-6">
+            {recentCandidates.length === 0 ? (
+              <p className="text-sm text-[#77767b]">No candidate profiles available yet.</p>
+            ) : recentCandidates.map((candidate) => (
+              <Link
+                key={candidate.id}
+                href={`/employer/candidates/${encodeURIComponent(candidate.id)}`}
+                className="group grid gap-3 border-t border-black/10 py-5 sm:grid-cols-[40px_minmax(0,1fr)_auto] sm:items-center"
+              >
+                <span className="flex h-9 w-9 items-center justify-center bg-[#101114] text-[10px] font-black text-white">
+                  {getInitials(candidate.name)}
+                </span>
+                <div>
+                  <h3 className="font-black transition group-hover:text-[#5b3df5]">{candidate.name}</h3>
+                  <p className="mt-1 text-xs text-[#77767b]">{candidate.experienceTitle || "Candidate"}{candidate.location ? ` · ${candidate.location}` : ""}</p>
+                </div>
+                <div className="flex flex-wrap gap-2 sm:justify-end">
+                  {candidate.skills.slice(0, 3).map((skill) => (
+                    <span key={skill} className="text-[10px] font-bold text-[#66656a]">{skill}</span>
+                  ))}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-8 py-9 lg:grid-cols-[220px_1fr]">
+        <p className="tn-index">05 / Operating note</p>
+        <p className="max-w-3xl text-2xl font-black tracking-[-.035em]">
+          The useful question is not “how many widgets can we show?” It is “what decision should the hiring team make next?”
+        </p>
+      </section>
     </div>
   );
 }

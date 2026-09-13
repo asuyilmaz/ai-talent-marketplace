@@ -1,27 +1,17 @@
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { DashboardHeader } from "@/components/layout/dashboard-header";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { EmployerNav } from "@/components/navigation/employer-nav";
-import { AuthGuard } from "@/components/auth/AuthGuard";
 
-export default function EmployerLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function EmployerLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGuard role="employer">
-      <div className="min-h-screen">
+      <div className="tn-shell min-h-screen">
         <DashboardHeader />
-
-        <div className="flex">
-          <DashboardSidebar>
-            <EmployerNav />
-          </DashboardSidebar>
-
-          <main className="flex-1 p-6">
-            {children}
-          </main>
-        </div>
+        <DashboardSidebar><EmployerNav /></DashboardSidebar>
+        <main className="mx-auto min-h-[calc(100vh-120px)] max-w-[1540px] px-4 py-7 sm:px-6 lg:px-8 lg:py-10">
+          {children}
+        </main>
       </div>
     </AuthGuard>
   );

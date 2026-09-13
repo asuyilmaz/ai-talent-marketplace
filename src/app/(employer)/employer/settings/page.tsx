@@ -330,17 +330,19 @@ export default function EmployerSettingsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">
+      <div className="border-y border-black py-7">
+        <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">
+          Workspace controls / 08
+        </p>
+
+        <h1 className="mt-3 text-5xl font-black tracking-[-.06em] sm:text-6xl">
           Settings
         </h1>
 
-        <p className="mt-2 text-muted-foreground">
-          Manage your employer
-          account and company
-          information.
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Keep employer identity and company account details aligned across the hiring workspace.
         </p>
       </div>
 
@@ -368,7 +370,8 @@ export default function EmployerSettingsPage() {
       )}
 
       {/* Employer Account */}
-      <Card>
+      <div className="grid gap-0 border-y border-black lg:grid-cols-2">
+      <Card className="rounded-none border-0 bg-transparent shadow-none lg:border-r lg:border-black">
         <CardHeader>
           <div className="flex items-center gap-2">
             <UserRound className="h-5 w-5" />
@@ -399,7 +402,7 @@ export default function EmployerSettingsPage() {
                   event.target.value
                 )
               }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               placeholder="Your name"
             />
           </div>
@@ -424,7 +427,7 @@ export default function EmployerSettingsPage() {
                   event.target.value
                 )
               }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               placeholder="you@example.com"
             />
           </div>
@@ -432,7 +435,7 @@ export default function EmployerSettingsPage() {
       </Card>
 
       {/* Company Account */}
-      <Card>
+      <Card className="rounded-none border-0 bg-transparent shadow-none">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
@@ -463,7 +466,7 @@ export default function EmployerSettingsPage() {
                   event.target.value
                 )
               }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               placeholder="Company name"
             />
           </div>
@@ -486,7 +489,7 @@ export default function EmployerSettingsPage() {
                   event.target.value
                 )
               }
-              className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+              className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               placeholder="https://example.com"
             />
           </div>
@@ -500,8 +503,10 @@ export default function EmployerSettingsPage() {
         </CardContent>
       </Card>
 
+      </div>
+
       {/* Unsupported settings explanation */}
-      <Card>
+      <Card className="rounded-none border-black bg-black text-white shadow-none">
         <CardHeader>
           <CardTitle>
             Hiring Preferences
@@ -521,7 +526,7 @@ export default function EmployerSettingsPage() {
       </Card>
 
       {/* Save */}
-      <div className="flex justify-end">
+      <div className="flex justify-end border-t border-black pt-6">
         <Button
           type="button"
           onClick={saveSettings}

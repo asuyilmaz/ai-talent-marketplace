@@ -14,24 +14,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "TALNIVO",
+    default: "TALNIVO — Your talent. Your next level.",
     template: "%s | TALNIVO",
   },
   description:
-    "AI-powered talent and recruitment platform connecting candidates with employers.",
+    "AI-powered talent marketplace for smarter job matching, skill growth, interview practice, and modern recruiting.",
   keywords: [
     "TALNIVO",
-    "job marketplace",
-    "recruitment",
-    "AI matching",
+    "talent marketplace",
+    "AI recruitment",
+    "job matching",
     "career platform",
-    "job search",
+    "interview practice",
   ],
-  authors: [
-    {
-      name: "Fatma Asu Yılmaz",
-    },
-  ],
+  authors: [{ name: "TALNIVO" }],
 };
 
 export default function RootLayout({
@@ -42,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
         {children}
       </body>

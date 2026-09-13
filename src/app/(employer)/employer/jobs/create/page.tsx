@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Briefcase,
-  Save,
+    Save,
 } from "lucide-react";
 
 import {
@@ -143,7 +142,7 @@ export default function CreateJobPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       {/* Header */}
       <div>
         <Link
@@ -154,15 +153,9 @@ export default function CreateJobPage() {
           Back to Jobs
         </Link>
 
-        <div className="flex items-center gap-2">
-          <Briefcase className="h-5 w-5" />
+        <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">Role composer / 04</p>
 
-          <span className="text-sm font-medium">
-            Recruitment
-          </span>
-        </div>
-
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+        <h1 className="mt-4 text-5xl font-black tracking-[-.06em] sm:text-6xl">
           Create Job
         </h1>
 
@@ -173,10 +166,10 @@ export default function CreateJobPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-6"
+        className="grid gap-0 border-y border-black lg:grid-cols-[1.2fr_.8fr]"
       >
         {/* Basic Information */}
-        <Card>
+        <Card className="rounded-none border-0 bg-transparent shadow-none lg:border-r lg:border-black">
           <CardHeader>
             <CardTitle>
               Basic Information
@@ -201,7 +194,7 @@ export default function CreateJobPage() {
                 }
                 placeholder="e.g. Frontend Developer"
                 required
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               />
             </div>
 
@@ -222,7 +215,7 @@ export default function CreateJobPage() {
                 placeholder="Describe the role, responsibilities and expectations..."
                 rows={7}
                 required
-                className="w-full resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="w-full resize-none border border-black/20 bg-white px-4 py-3 text-sm outline-none transition focus:border-[#6d5dfc]"
               />
             </div>
 
@@ -243,7 +236,7 @@ export default function CreateJobPage() {
                 }
                 placeholder="React, TypeScript, Next.js"
                 required
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               />
 
               <p className="text-xs text-muted-foreground">
@@ -254,7 +247,7 @@ export default function CreateJobPage() {
         </Card>
 
         {/* Job Details */}
-        <Card>
+        <Card className="rounded-none border-0 bg-transparent shadow-none">
           <CardHeader>
             <CardTitle>
               Job Details
@@ -278,7 +271,7 @@ export default function CreateJobPage() {
                     event.target.value
                   )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               >
                 <option value="Remote">
                   Remote
@@ -310,7 +303,7 @@ export default function CreateJobPage() {
                     event.target.value
                   )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none transition focus:border-[#6d5dfc]"
               >
                 <option value="Full-time">
                   Full-time

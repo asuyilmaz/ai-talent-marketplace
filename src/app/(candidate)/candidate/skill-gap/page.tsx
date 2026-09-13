@@ -5,19 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   Lightbulb,
-  Sparkles,
   TrendingUp,
+  Sparkles
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 
 type CurrentUser = {
   id: string;
@@ -366,403 +357,176 @@ export default function CandidateSkillGapPage() {
     );
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-
-          <span className="text-sm font-medium">
-            Career Insights
-          </span>
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-8 border-b border-black/15 pb-9 lg:grid-cols-[1.15fr_.85fr] lg:items-end">
+        <div>
+          <p className="tn-index text-[#6d5dfc]">Capability gap / 04</p>
+          <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.065em] text-[#101114] sm:text-6xl">
+            See what the market keeps asking for.
+          </h1>
+          <p className="mt-5 max-w-2xl text-sm leading-6 text-[#66656a]">
+            Instead of a generic learning list, this view measures your current
+            profile against the skills repeated across live roles.
+          </p>
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Skill Gap
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          See which skills appear in
-          available jobs but are currently
-          missing from your profile.
-        </p>
-      </div>
-
-      {error && (
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-sm text-destructive">
-              {error}
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {!error &&
-        candidateSkills.length === 0 && (
-          <Card>
-            <CardContent className="p-6">
-              <p className="font-medium">
-                Add your skills first
-              </p>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Your profile currently has
-                no skills. Add them so the
-                system can calculate your
-                real skill gaps.
-              </p>
-
-              <Link href="/candidate/skills">
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                >
-                  Manage Skills
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        )}
-
-      {!error && (
-        <>
-          {/* Overview */}
-          <section className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-medium">
-                  Skill Coverage
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent>
-                <p className="text-4xl font-semibold">
-                  {
-                    analysis.coverage
-                  }
-                  %
-                </p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Coverage across all
-                  required job skills.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-medium">
-                  Matched Requirements
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent>
-                <p className="text-4xl font-semibold">
-                  {
-                    analysis.totalMatchedSkills
-                  }
-                </p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Out of{" "}
-                  {
-                    analysis.totalRequiredSkills
-                  }{" "}
-                  total skill requirements.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base font-medium">
-                  Skills to Improve
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent>
-                <p className="text-4xl font-semibold">
-                  {
-                    analysis
-                      .missingSkills
-                      .length
-                  }
-                </p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Missing skills found
-                  across available jobs.
-                </p>
-              </CardContent>
-            </Card>
-          </section>
-
-          {/* Progress */}
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Overall Skill Coverage
-              </CardTitle>
-
-              <p className="text-sm text-muted-foreground">
-                How many job skill
-                requirements your current
-                profile already covers.
-              </p>
-            </CardHeader>
-
-            <CardContent>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-sm font-medium">
-                  Current coverage
-                </span>
-
-                <span className="text-sm text-muted-foreground">
-                  {
-                    analysis.coverage
-                  }
-                  %
-                </span>
-              </div>
-
-              <Progress
-                value={
-                  analysis.coverage
-                }
-                className="mt-3"
-              />
-
-              <p className="mt-3 text-sm text-muted-foreground">
-                Adding relevant missing
-                skills can improve your
-                compatibility with current
-                job postings.
-              </p>
-            </CardContent>
-          </Card>
-
-          {/* Skill Gaps */}
-          <section className="space-y-4">
+        <div className="border border-black/15 p-5">
+          <div className="flex items-end justify-between gap-5">
             <div>
-              <h2 className="text-xl font-semibold">
-                Skills to Improve
-              </h2>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Skills are ranked by how
-                often they appear in
-                available jobs.
+              <p className="tn-index text-[#8a898d]">Skill coverage</p>
+              <p className="mt-2 text-5xl font-black tracking-[-.06em]">
+                {analysis.coverage}<span className="text-lg text-[#8a898d]">%</span>
               </p>
             </div>
+            <p className="max-w-[170px] text-right text-xs leading-5 text-[#77767a]">
+              {analysis.totalMatchedSkills} of {analysis.totalRequiredSkills} required skill signals covered.
+            </p>
+          </div>
+          <div className="mt-5 h-1.5 bg-black/10">
+            <div
+              className="h-full bg-[#6d5dfc]"
+              style={{ width: `${analysis.coverage}%` }}
+            />
+          </div>
+        </div>
+      </section>
 
-            {analysis.missingSkills
-              .length === 0 ? (
-              <Card>
-                <CardContent className="p-6">
-                  <p className="font-medium">
-                    No skill gaps found
-                  </p>
+      {error && (
+        <div className="border border-destructive/25 bg-destructive/5 p-5 text-sm text-destructive">
+          {error}
+        </div>
+      )}
 
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Your current skills
-                    cover all skill
-                    requirements in the
-                    available job postings.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {analysis.missingSkills.map(
-                  (skill) => (
-                    <Card
-                      key={skill.name}
-                    >
-                      <CardContent className="p-6">
-                        <div className="space-y-5">
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                              <div className="flex flex-wrap items-center gap-2">
-                                <h3 className="font-semibold">
-                                  {
-                                    skill.name
-                                  }
-                                </h3>
+      {!error && candidateSkills.length === 0 && (
+        <div className="grid gap-5 border border-[#6d5dfc]/30 bg-[#6d5dfc]/5 p-6 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <p className="tn-index text-[#6d5dfc]">Baseline missing</p>
+            <h2 className="mt-2 text-xl font-black">Add your current skills first.</h2>
+            <p className="mt-2 text-sm text-[#66656a]">
+              We need your existing capability set before we can identify useful gaps.
+            </p>
+          </div>
+          <Link
+            href="/candidate/skills"
+            className="inline-flex h-11 items-center justify-center gap-2 border border-black bg-black px-5 text-xs font-black uppercase tracking-[.12em] text-white"
+          >
+            Add skills <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
 
-                                <Badge
-                                  variant={
-                                    skill.priority ===
-                                    "High"
-                                      ? "default"
-                                      : "secondary"
-                                  }
-                                >
-                                  {
-                                    skill.priority
-                                  }{" "}
-                                  Priority
-                                </Badge>
-                              </div>
-
-                              <p className="mt-2 text-sm text-muted-foreground">
-                                Required
-                                by{" "}
-                                {
-                                  skill.jobCount
-                                }{" "}
-                                of{" "}
-                                {
-                                  jobs.length
-                                }{" "}
-                                available
-                                job
-                                {jobs.length ===
-                                1
-                                  ? ""
-                                  : "s"}
-                                .
-                              </p>
-                            </div>
-
-                            <div className="text-left sm:text-right">
-                              <p className="text-2xl font-semibold">
-                                {
-                                  skill.percentage
-                                }
-                                %
-                              </p>
-
-                              <p className="text-xs text-muted-foreground">
-                                Job demand
-                              </p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <div className="mb-2 flex items-center justify-between text-sm">
-                              <span className="text-muted-foreground">
-                                Demand
-                                across
-                                jobs
-                              </span>
-
-                              <span className="font-medium">
-                                {
-                                  skill.jobCount
-                                }{" "}
-                                /{" "}
-                                {
-                                  jobs.length
-                                }
-                              </span>
-                            </div>
-
-                            <Progress
-                              value={
-                                skill.percentage
-                              }
-                            />
-                          </div>
-
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <TrendingUp className="h-4 w-4" />
-
-                              <span>
-                                Adding
-                                this
-                                skill may
-                                improve
-                                your match
-                                with{" "}
-                                {
-                                  skill.jobCount
-                                }{" "}
-                                job
-                                {skill.jobCount ===
-                                1
-                                  ? ""
-                                  : "s"}
-                                .
-                              </span>
-                            </div>
-
-                            <Link href="/candidate/skills">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                              >
-                                Add Skill
-                                <ArrowRight className="ml-2 h-4 w-4" />
-                              </Button>
-                            </Link>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )
-                )}
+      {!error && analysis.missingSkills.length > 0 && (
+        <>
+          <section className="grid gap-6 lg:grid-cols-[.7fr_1.3fr]">
+            <div className="border border-black bg-[#101114] p-7 text-white">
+              <p className="tn-index text-[#9c90ff]">Highest-leverage gap</p>
+              <h2 className="mt-5 text-4xl font-black tracking-[-.055em]">
+                {topSkill?.name}
+              </h2>
+              <p className="mt-4 text-sm leading-6 text-white/60">
+                Requested by {topSkill?.jobCount} current role{topSkill?.jobCount === 1 ? "" : "s"}.
+                This is the most repeated missing signal in your market view.
+              </p>
+              <div className="mt-8 flex items-center gap-3">
+                <TrendingUp className="h-5 w-5 text-[#9c90ff]" />
+                <span className="text-3xl font-black">{topSkill?.percentage}%</span>
+                <span className="text-xs text-white/45">of live roles</span>
               </div>
-            )}
+            </div>
+
+            <div className="border-y border-black/15">
+              <div className="grid gap-3 border-b border-black/15 py-4 sm:grid-cols-[1fr_auto] sm:items-center">
+                <div>
+                  <p className="tn-index text-[#8a898d]">Current skill set</p>
+                  <h2 className="mt-2 text-xl font-black">What you already bring</h2>
+                </div>
+                <span className="text-xs text-[#8a898d]">{candidateSkills.length} skills</span>
+              </div>
+              <div className="flex flex-wrap gap-2 py-5">
+                {candidateSkills.map((skill) => (
+                  <span key={skill} className="border border-black/15 bg-white px-3 py-1.5 text-xs font-bold">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
           </section>
 
-          {/* Recommendation */}
-          {topSkill && (
-            <Card>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5" />
+          <section>
+            <div className="mb-4">
+              <p className="tn-index text-[#8a898d]">Market demand ranking</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">
+                Missing skills worth investigating
+              </h2>
+            </div>
 
-                  <CardTitle>
-                    Recommended Focus
-                  </CardTitle>
+            <div className="border-t border-black">
+              {analysis.missingSkills.map((skill, index) => (
+                <div
+                  key={skill.name}
+                  className="grid gap-4 border-b border-black/15 py-5 sm:grid-cols-[56px_1fr_130px_120px] sm:items-center"
+                >
+                  <span className="font-mono text-xs text-[#9b9a9e]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <p className="text-lg font-black tracking-[-.03em]">{skill.name}</p>
+                    <div className="mt-2 h-[3px] max-w-lg bg-black/10">
+                      <div
+                        className="h-full bg-[#6d5dfc]"
+                        style={{ width: `${skill.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-black tracking-[-.04em]">{skill.jobCount}</p>
+                    <p className="text-[10px] uppercase tracking-[.14em] text-[#8a898d]">roles request it</p>
+                  </div>
+                  <span className={`justify-self-start border px-2.5 py-1 text-[10px] font-black uppercase tracking-[.12em] ${
+                    skill.priority === "High"
+                      ? "border-black bg-black text-white"
+                      : skill.priority === "Medium"
+                      ? "border-[#6d5dfc] text-[#6d5dfc]"
+                      : "border-black/20 text-[#77767a]"
+                  }`}>
+                    {skill.priority}
+                  </span>
                 </div>
+              ))}
+            </div>
+          </section>
 
-                <p className="text-sm text-muted-foreground">
-                  Suggested priority
-                  based on current job
-                  demand.
-                </p>
-              </CardHeader>
-
-              <CardContent>
-                <div className="rounded-lg border p-4">
-                  <h3 className="font-medium">
-                    Focus on{" "}
-                    {topSkill.name} first
-                  </h3>
-
-                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                    {
-                      topSkill.name
-                    }{" "}
-                    appears in{" "}
-                    {
-                      topSkill.jobCount
-                    }{" "}
-                    of the currently
-                    available jobs and is
-                    not yet included in
-                    your candidate
-                    skills.
-                  </p>
-
-                  <Link href="/candidate/skills">
-                    <Button className="mt-4">
-                      Add{" "}
-                      {topSkill.name}
-                      <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          <section className="grid gap-5 border border-black/15 p-6 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+            <div className="flex h-11 w-11 items-center justify-center border border-black/15 bg-white">
+              <Lightbulb className="h-5 w-5 text-[#6d5dfc]" />
+            </div>
+            <div>
+              <p className="font-black">Use the gap as a direction, not a checklist.</p>
+              <p className="mt-1 text-sm leading-6 text-[#77767a]">
+                Prioritize repeated skills that also fit the kind of work you actually want.
+              </p>
+            </div>
+            <Link
+              href="/candidate/jobs"
+              className="inline-flex h-10 items-center justify-center gap-2 border border-black/20 px-4 text-xs font-black uppercase tracking-[.1em] hover:bg-black hover:text-white"
+            >
+              Revisit roles <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </section>
         </>
+      )}
+
+      {!error && analysis.missingSkills.length === 0 && (
+        <div className="border-y border-black/15 py-14">
+          <p className="tn-index text-[#6d5dfc]">No major gap detected</p>
+          <h2 className="mt-3 text-3xl font-black tracking-[-.045em]">
+            Your current skills cover the available market well.
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#77767a]">
+            Keep your profile current as new roles and requirements enter TALNIVO.
+          </p>
+        </div>
       )}
     </div>
   );

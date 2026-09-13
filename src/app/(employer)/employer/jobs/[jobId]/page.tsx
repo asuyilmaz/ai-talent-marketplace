@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  Briefcase,
-  Building2,
+    Building2,
   MapPin,
   Pencil,
   Trash2,
@@ -175,7 +174,7 @@ export default function EmployerJobDetailsPage() {
           Back to Jobs
         </Link>
 
-        <Card>
+        <Card className="rounded-none border-0 bg-transparent shadow-none">
           <CardContent className="flex min-h-48 items-center justify-center p-6">
             <div className="text-center">
               <h2 className="text-lg font-semibold">Job not found</h2>
@@ -190,7 +189,7 @@ export default function EmployerJobDetailsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       <Link
         href="/employer/jobs"
         className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
@@ -205,17 +204,14 @@ export default function EmployerJobDetailsPage() {
         </div>
       )}
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Briefcase className="h-4 w-4" />
-                Recruitment
-              </div>
+      <Card className="rounded-none border-black bg-white shadow-none">
+        <CardContent className="p-0">
+          <div className="grid gap-0 lg:grid-cols-[1fr_auto]">
+            <div className="p-7 lg:p-9">
+              <p className="mb-5 text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">Role control / 04</p>
 
               <div>
-                <h1 className="text-3xl font-semibold tracking-tight">
+                <h1 className="text-5xl font-black tracking-[-.06em] sm:text-6xl">
                   {job.title}
                 </h1>
 
@@ -235,10 +231,10 @@ export default function EmployerJobDetailsPage() {
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex min-w-[220px] flex-col justify-end gap-3 border-t border-black p-7 lg:border-l lg:border-t-0">
               <Link
                 href={`/employer/jobs/${encodeURIComponent(job.id)}/edit`}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                className="inline-flex h-10 items-center justify-center border border-black/20 bg-transparent px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Edit Job
@@ -257,8 +253,8 @@ export default function EmployerJobDetailsPage() {
         </CardContent>
       </Card>
 
-      <section className="grid gap-4 md:grid-cols-3">
-        <Card>
+      <section className="grid gap-0 border-y border-black md:grid-cols-3">
+        <Card className="rounded-none border-0 bg-transparent shadow-none">
           <CardHeader>
             <CardTitle className="text-base">Status</CardTitle>
           </CardHeader>
@@ -269,7 +265,7 @@ export default function EmployerJobDetailsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-none border-0 bg-transparent shadow-none">
           <CardHeader>
             <CardTitle className="text-base">Applications</CardTitle>
           </CardHeader>
@@ -294,8 +290,8 @@ export default function EmployerJobDetailsPage() {
         </Card>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
+      <section className="grid gap-0 border-b border-black lg:grid-cols-3">
+        <Card className="rounded-none border-0 bg-transparent shadow-none lg:col-span-2">
           <CardHeader>
             <CardTitle>Job Description</CardTitle>
           </CardHeader>

@@ -3,16 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
   ArrowRight,
   MapPin,
   Briefcase,
-  Sparkles,
 } from "lucide-react";
 import {
   calculateSkillMatch,
@@ -200,179 +193,169 @@ export default function CandidateJobsPage() {
     });
   }, [jobs, search, filter]);
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-8 border-b border-black/15 pb-9 lg:grid-cols-[1.2fr_.8fr] lg:items-end">
+        <div>
+          <p className="tn-index text-[#6d5dfc]">Opportunity desk / 01</p>
+          <h1 className="mt-4 max-w-4xl text-5xl font-black tracking-[-.065em] text-[#101114] sm:text-6xl">
+            Find work that fits the skills you already have.
+          </h1>
+        </div>
+        <div className="lg:pb-2">
+          <p className="max-w-xl text-sm leading-6 text-[#66656a]">
+            Every role is ranked against your current skill profile. Search the market,
+            narrow the work model, then inspect the signal before you apply.
+          </p>
+          <div className="mt-5 flex items-baseline gap-3">
+            <span className="text-3xl font-black tracking-[-.05em]">{jobs.length}</span>
+            <span className="text-xs uppercase tracking-[.18em] text-[#8a898d]">
+              live roles
+            </span>
+          </div>
+        </div>
+      </section>
 
-          <span className="text-sm font-medium">
-            Skill-Based Recommendations
-          </span>
+      <section className="grid gap-5 border-b border-black/15 pb-8 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="relative">
+          <label htmlFor="job-search" className="tn-index text-[#8a898d]">
+            Search market
+          </label>
+          <input
+            id="job-search"
+            name="jobSearch"
+            type="search"
+            placeholder="Role, company, skill or work type"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            className="mt-3 h-14 w-full border-0 border-b border-black bg-transparent px-0 text-lg font-semibold outline-none placeholder:text-[#aaa9ad]"
+          />
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Recommended Jobs
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Discover jobs ranked by how closely their required
-          skills match your profile.
-        </p>
-      </div>
-
-      <Card>
-        <CardContent className="flex flex-col gap-4 p-5 sm:flex-row">
-          <input
-            type="text"
-            placeholder="Search by job title, company or skill..."
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-            }}
-            className="h-10 flex-1 rounded-md border bg-background px-3 text-sm outline-none transition focus:ring-2 focus:ring-ring"
-          />
-
-          <Button
-            type="button"
-            variant={filter === "All" ? "default" : "outline"}
-            onClick={() => setFilter("All")}
-          >
-            All Jobs
-          </Button>
-
-          <Button
-            type="button"
-            variant={
-              filter === "Remote" ? "default" : "outline"
-            }
-            onClick={() => setFilter("Remote")}
-          >
-            Remote
-          </Button>
-
-          <Button
-            type="button"
-            variant={
-              filter === "Hybrid" ? "default" : "outline"
-            }
-            onClick={() => setFilter("Hybrid")}
-          >
-            Hybrid
-          </Button>
-        </CardContent>
-      </Card>
+        <div className="flex flex-wrap gap-2 lg:justify-end">
+          {["All", "Remote", "Hybrid"].map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setFilter(item)}
+              className={`h-10 border px-4 text-xs font-black uppercase tracking-[.12em] transition ${
+                filter === item
+                  ? "border-[#101114] bg-[#101114] text-white"
+                  : "border-black/15 bg-transparent text-[#101114] hover:border-black"
+              }`}
+            >
+              {item === "All" ? "All jobs" : item}
+            </button>
+          ))}
+        </div>
+      </section>
 
       {loading && (
-        <Card>
-          <CardContent className="flex min-h-40 items-center justify-center p-6">
-            <p className="text-sm text-muted-foreground">
-              Loading jobs...
-            </p>
-          </CardContent>
-        </Card>
+        <div className="border-y border-black/10 py-16 text-sm text-[#77767a]">
+          Loading market signal...
+        </div>
       )}
 
       {!loading && error && (
-        <Card>
-          <CardContent className="flex min-h-40 items-center justify-center p-6">
-            <p className="text-sm text-destructive">{error}</p>
-          </CardContent>
-        </Card>
+        <div className="border border-destructive/25 bg-destructive/5 p-5 text-sm text-destructive">
+          {error}
+        </div>
       )}
 
       {!loading && !error && filteredJobs.length > 0 && (
-        <section className="space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold">Best Matches</h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              {filteredJobs.length} jobs match your search.
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <p className="tn-index text-[#8a898d]">Ranked opportunities</p>
+              <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">
+                {filteredJobs.length} role{filteredJobs.length === 1 ? "" : "s"} in view
+              </h2>
+            </div>
+            <p className="hidden text-xs text-[#8a898d] sm:block">
+              Highest skill match first
             </p>
           </div>
 
-          <div className="space-y-4">
-            {filteredJobs.map((job) => (
-              <Card key={job.id}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                    <div className="space-y-4">
-                      <div>
-                        <h3 className="text-lg font-semibold">
-                          {job.title}
-                        </h3>
+          <div className="border-t border-black">
+            {filteredJobs.map((job, index) => (
+              <article
+                key={job.id}
+                className="group grid gap-5 border-b border-black/15 py-7 transition lg:grid-cols-[64px_1.35fr_.8fr_170px] lg:items-center"
+              >
+                <span className="font-mono text-xs text-[#9b9a9e]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
 
-                        <p className="text-sm text-muted-foreground">
-                          {job.company}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-2">
-                        {job.skills.map((skill) => (
-                          <Badge
-                            key={`${job.id}-${skill}`}
-                            variant="secondary"
-                          >
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
-
-                      <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-2">
-                          <MapPin className="h-4 w-4" />
-                          {job.workType}
-                        </span>
-
-                        <span className="flex items-center gap-2">
-                          <Briefcase className="h-4 w-4" />
-                          {job.employmentType}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
-                      <div className="text-right">
-                        <Badge className="text-sm">
-                          {job.matchScore}% Match
-                        </Badge>
-
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          {getMatchLabel(job.matchScore)}
-                        </p>
-                      </div>
-
-                      <Link
-                        href={`/candidate/jobs/${encodeURIComponent(
-                          job.id
-                        )}`}
-                      >
-                        <Button variant="outline">
-                          View Job
-                          <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
-                      </Link>
-                    </div>
+                <div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <h3 className="text-xl font-black tracking-[-.035em]">
+                      {job.title}
+                    </h3>
+                    <span className="text-sm text-[#77767a]">{job.company}</span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[#66656a]">
+                    <span className="inline-flex items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {job.workType}
+                    </span>
+                    <span className="inline-flex items-center gap-2">
+                      <Briefcase className="h-3.5 w-3.5" />
+                      {job.employmentType}
+                    </span>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {job.skills.slice(0, 6).map((skill) => (
+                      <span
+                        key={`${job.id}-${skill}`}
+                        className="border border-black/15 px-2.5 py-1 text-[11px] font-semibold"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex items-end gap-2">
+                    <span className="text-4xl font-black tracking-[-.06em]">
+                      {job.matchScore}
+                    </span>
+                    <span className="pb-1 text-xs font-bold text-[#8a898d]">/100</span>
+                  </div>
+                  <p className="mt-1 text-xs text-[#77767a]">
+                    {getMatchLabel(job.matchScore)}
+                  </p>
+                  <div className="mt-3 h-[3px] w-full max-w-[180px] bg-black/10">
+                    <div
+                      className="h-full bg-[#6d5dfc]"
+                      style={{ width: `${job.matchScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                <Link
+                  href={`/candidate/jobs/${encodeURIComponent(job.id)}`}
+                  className="inline-flex h-11 items-center justify-center gap-2 border border-black bg-[#101114] px-4 text-xs font-black uppercase tracking-[.12em] text-white transition hover:bg-[#6d5dfc]"
+                >
+                  Inspect role
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </article>
             ))}
           </div>
         </section>
       )}
 
       {!loading && !error && filteredJobs.length === 0 && (
-        <Card>
-          <CardContent className="flex min-h-40 items-center justify-center p-6">
-            <div className="text-center">
-              <h3 className="font-medium">No jobs found</h3>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try a different search or filter.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="border-y border-black/15 py-16">
+          <p className="tn-index text-[#8a898d]">No result</p>
+          <h3 className="mt-3 text-2xl font-black tracking-[-.04em]">
+            Nothing matches that search.
+          </h3>
+          <p className="mt-2 text-sm text-[#77767a]">
+            Try another role, company, skill, or work model.
+          </p>
+        </div>
       )}
     </div>
   );

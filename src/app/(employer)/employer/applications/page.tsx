@@ -288,7 +288,7 @@ export default function EmployerApplicationsPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
@@ -299,7 +299,8 @@ export default function EmployerApplicationsPage() {
           </span>
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+        <p className="mb-3 text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">Application desk / 02</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
           Applications
         </h1>
 
@@ -555,7 +556,7 @@ export default function EmployerApplicationsPage() {
                                     .value as ApplicationStatus
                                 )
                               }
-                              className="h-9 rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              className="h-9 border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {statusOptions.map(
                                 (status) => (
@@ -573,7 +574,7 @@ export default function EmployerApplicationsPage() {
                               href={`/employer/candidates/${encodeURIComponent(
                                 application.candidateId
                               )}`}
-                              className="inline-flex h-9 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                              className="inline-flex h-9 items-center justify-center border border-input bg-background px-4 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                             >
                               View Candidate
                             </Link>

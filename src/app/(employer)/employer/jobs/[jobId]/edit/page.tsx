@@ -195,7 +195,7 @@ export default function EditJobPage() {
           Back to Jobs
         </Link>
 
-        <Card>
+        <Card className="rounded-none border-0 bg-transparent shadow-none lg:border-r lg:border-black">
           <CardContent className="flex min-h-48 items-center justify-center p-6">
             <div className="text-center">
               <h2 className="text-lg font-semibold">Job not found</h2>
@@ -220,20 +220,21 @@ export default function EditJobPage() {
           Back to Job
         </Link>
 
-        <h1 className="text-3xl font-semibold tracking-tight">Edit Job</h1>
+<p className="mb-3 text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">Role editor / 05</p>
+        <h1 className="text-5xl font-black tracking-[-.06em] sm:text-6xl">Edit Job</h1>
         <p className="mt-2 text-muted-foreground">
           Update your job posting and hiring requirements.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+        <div className="border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <Card>
+      <form onSubmit={handleSubmit} className="grid gap-0 border-y border-black lg:grid-cols-[1.2fr_.8fr]">
+        <Card className="rounded-none border-0 bg-transparent shadow-none">
           <CardHeader>
             <CardTitle>Basic Information</CardTitle>
           </CardHeader>
@@ -249,7 +250,7 @@ export default function EditJobPage() {
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 required
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
               />
             </div>
 
@@ -263,7 +264,7 @@ export default function EditJobPage() {
                 onChange={(event) => setDescription(event.target.value)}
                 rows={7}
                 required
-                className="w-full resize-none rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="w-full resize-none border border-black/20 bg-white px-4 py-3 text-sm outline-none focus:border-[#6d5dfc]"
               />
             </div>
 
@@ -277,7 +278,7 @@ export default function EditJobPage() {
                 value={skills}
                 onChange={(event) => setSkills(event.target.value)}
                 required
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
               />
               <p className="text-xs text-muted-foreground">
                 Separate skills with commas.
@@ -302,7 +303,7 @@ export default function EditJobPage() {
                 onChange={(event) =>
                   setWorkType(event.target.value as EmployerJob["workType"])
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
               >
                 <option value="Remote">Remote</option>
                 <option value="Hybrid">Hybrid</option>
@@ -322,7 +323,7 @@ export default function EditJobPage() {
                     event.target.value as EmployerJob["employmentType"]
                   )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
               >
                 <option value="Full-time">Full-time</option>
                 <option value="Part-time">Part-time</option>
@@ -340,7 +341,7 @@ export default function EditJobPage() {
                 onChange={(event) =>
                   setStatus(event.target.value as EmployerJob["status"])
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
               >
                 <option value="Published">Published</option>
                 <option value="Draft">Draft</option>

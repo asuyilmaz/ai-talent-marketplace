@@ -271,7 +271,7 @@ export default function EmployerCandidatesPage() {
     ).length;
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       {/* Header */}
       <div>
         <div className="flex items-center gap-2">
@@ -282,7 +282,8 @@ export default function EmployerCandidatesPage() {
           </span>
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
+        <p className="mb-3 text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">Talent directory / 03</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">
           Candidates
         </h1>
 
@@ -370,7 +371,7 @@ export default function EmployerCandidatesPage() {
       {!error && (
         <Card>
           <CardContent className="flex flex-col gap-4 p-5 sm:flex-row">
-            <div className="flex flex-1 items-center gap-3 rounded-md border px-3">
+            <div className="flex flex-1 items-center gap-3 border px-3">
               <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
 
               <input

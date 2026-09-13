@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 type User = {
   id: string;
@@ -17,24 +17,27 @@ type AuthGuardProps = {
 
 export function AuthGuard({ children, role }: AuthGuardProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     let active = true;
+    const controller = new AbortController();
 
     async function checkSession() {
-      setChecking(true);
-
       try {
         const response = await fetch("/api/auth/me", {
           method: "GET",
           cache: "no-store",
+          signal: controller.signal,
         });
 
         if (!response.ok) {
           localStorage.removeItem("currentUser");
-          router.replace("/login");
+
+          if (active) {
+            router.replace("/login");
+          }
+
           return;
         }
 
@@ -43,27 +46,43 @@ export function AuthGuard({ children, role }: AuthGuardProps) {
 
         if (!user) {
           localStorage.removeItem("currentUser");
-          router.replace("/login");
+
+          if (active) {
+            router.replace("/login");
+          }
+
           return;
         }
 
         // Temporary compatibility cache for pages that still read currentUser.
-        // Authorization itself now comes from the server session.
+        // Real authentication and authorization come from the server session.
         localStorage.setItem("currentUser", JSON.stringify(user));
 
         if (user.role !== role) {
-          router.replace(
-            user.role === "candidate"
-              ? "/candidate/dashboard"
-              : "/employer/dashboard"
-          );
+          if (active) {
+            router.replace(
+              user.role === "candidate"
+                ? "/candidate/dashboard"
+                : "/employer/dashboard"
+            );
+          }
+
           return;
         }
 
-        if (active) setChecking(false);
-      } catch {
+        if (active) {
+          setChecking(false);
+        }
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
         localStorage.removeItem("currentUser");
-        router.replace("/login");
+
+        if (active) {
+          router.replace("/login");
+        }
       }
     }
 
@@ -71,12 +90,13 @@ export function AuthGuard({ children, role }: AuthGuardProps) {
 
     return () => {
       active = false;
+      controller.abort();
     };
-  }, [router, role, pathname]);
+  }, [router, role]);
 
   if (checking) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-[#f3f1ec]">
         <p className="text-sm text-muted-foreground">
           Checking authentication...
         </p>

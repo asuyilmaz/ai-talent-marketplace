@@ -4,17 +4,9 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
-  Sparkles,
+  Sparkles
 } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type CurrentUser = {
   id: string;
@@ -322,276 +314,130 @@ export default function CandidateMatchesPage() {
     );
   }
 
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-
-          <span className="text-sm font-medium">
-            Skill Matching
-          </span>
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-7 border-b border-black/15 pb-9 lg:grid-cols-[1fr_360px] lg:items-end">
+        <div>
+          <p className="tn-index text-[#6d5dfc]">Match intelligence / 02</p>
+          <h1 className="mt-4 text-5xl font-black tracking-[-.065em] text-[#101114] sm:text-6xl">
+            Your fit, made visible.
+          </h1>
+          <p className="mt-5 max-w-2xl text-sm leading-6 text-[#66656a]">
+            TALNIVO compares your skill profile with every available role and
+            surfaces where the overlap is strongest — and where it breaks.
+          </p>
         </div>
-
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          My Matches
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Discover opportunities ranked
-          by how closely their required
-          skills match your profile.
-        </p>
-      </div>
+        <div className="grid grid-cols-3 border border-black/15">
+          <div className="p-4">
+            <p className="tn-index text-[#8a898d]">Best</p>
+            <p className="mt-2 text-3xl font-black tracking-[-.05em]">{bestMatch}%</p>
+          </div>
+          <div className="border-x border-black/15 p-4">
+            <p className="tn-index text-[#8a898d]">70%+</p>
+            <p className="mt-2 text-3xl font-black tracking-[-.05em]">{strongMatches}</p>
+          </div>
+          <div className="p-4">
+            <p className="tn-index text-[#8a898d]">Average</p>
+            <p className="mt-2 text-3xl font-black tracking-[-.05em]">{averageMatch}%</p>
+          </div>
+        </div>
+      </section>
 
       {error && (
-        <Card>
-          <CardContent className="p-6">
-            <p className="text-sm text-destructive">
-              {error}
-            </p>
-          </CardContent>
-        </Card>
+        <div className="border border-destructive/25 bg-destructive/5 p-5 text-sm text-destructive">
+          {error}
+        </div>
       )}
 
-      {!error &&
-        candidateSkills.length === 0 && (
-          <Card>
-            <CardContent className="p-6">
-              <p className="font-medium">
-                Add skills to improve your
-                matches
-              </p>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Your profile does not have
-                any skills yet. Add your
-                skills and we can calculate
-                more meaningful job matches.
-              </p>
-
-              <Link href="/candidate/skills">
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                >
-                  Manage Skills
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        )}
-
-      {/* Match Overview */}
-      {!error && (
-        <section className="grid gap-4 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Best Match
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <p className="text-4xl font-semibold">
-                {bestMatch}%
-              </p>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Your strongest available
-                job match.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Strong Matches
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <p className="text-4xl font-semibold">
-                {strongMatches}
-              </p>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Jobs with at least 70%
-                skill compatibility.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base font-medium">
-                Average Match
-              </CardTitle>
-            </CardHeader>
-
-            <CardContent>
-              <p className="text-4xl font-semibold">
-                {averageMatch}%
-              </p>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Average compatibility
-                across available jobs.
-              </p>
-            </CardContent>
-          </Card>
-        </section>
-      )}
-
-      {/* Matches */}
-      {!error && (
-        <section className="space-y-4">
+      {!error && candidateSkills.length === 0 && (
+        <div className="grid gap-5 border border-[#6d5dfc]/30 bg-[#6d5dfc]/5 p-6 sm:grid-cols-[1fr_auto] sm:items-center">
           <div>
-            <h2 className="text-xl font-semibold">
-              Recommended Matches
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Jobs are ranked using your
-              current skills and each
-              position&apos;s required
-              skills.
+            <p className="tn-index text-[#6d5dfc]">Signal incomplete</p>
+            <h2 className="mt-2 text-xl font-black">Add skills before judging your fit.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#66656a]">
+              Your profile has no skills yet, so the match score cannot tell you much.
             </p>
+          </div>
+          <Link
+            href="/candidate/skills"
+            className="inline-flex h-11 items-center justify-center gap-2 border border-black bg-[#101114] px-5 text-xs font-black uppercase tracking-[.12em] text-white"
+          >
+            Build skill profile <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
+
+      {!error && (
+        <section>
+          <div className="mb-4">
+            <p className="tn-index text-[#8a898d]">Compatibility ranking</p>
+            <h2 className="mt-2 text-2xl font-black tracking-[-.04em]">
+              {matches.length} opportunity{matches.length === 1 ? "" : "ies"}
+            </h2>
           </div>
 
           {matches.length === 0 ? (
-            <Card>
-              <CardContent className="p-6">
-                <p className="font-medium">
-                  No jobs available
-                </p>
-
-                <p className="mt-1 text-sm text-muted-foreground">
-                  There are currently no
-                  published jobs to compare
-                  with your profile.
-                </p>
-              </CardContent>
-            </Card>
+            <div className="border-y border-black/15 py-14 text-sm text-[#77767a]">
+              No jobs are currently available to compare.
+            </div>
           ) : (
-            <div className="space-y-4">
-              {matches.map((match) => (
-                <Card key={match.id}>
-                  <CardContent className="p-6">
-                    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-                      <div className="space-y-4">
-                        <div>
-                          <h3 className="text-lg font-semibold">
-                            {match.title}
-                          </h3>
+            <div className="border-t border-black">
+              {matches.map((match, index) => (
+                <article
+                  key={match.id}
+                  className="grid gap-6 border-b border-black/15 py-7 lg:grid-cols-[60px_110px_1.2fr_.9fr_150px] lg:items-center"
+                >
+                  <span className="font-mono text-xs text-[#9b9a9e]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
 
-                          <p className="text-sm text-muted-foreground">
-                            {match.company}
-                          </p>
-                        </div>
+                  <div>
+                    <p className="text-4xl font-black tracking-[-.06em]">{match.score}</p>
+                    <p className="text-[10px] font-black uppercase tracking-[.16em] text-[#77767a]">
+                      match score
+                    </p>
+                  </div>
 
-                        {match.description && (
-                          <p className="max-w-2xl text-sm leading-6 text-muted-foreground">
-                            {
-                              match.description
-                            }
-                          </p>
+                  <div>
+                    <h3 className="text-xl font-black tracking-[-.035em]">{match.title}</h3>
+                    <p className="mt-1 text-sm text-[#77767a]">
+                      {match.company} · {match.workType} · {match.employmentType}
+                    </p>
+                    <p className="mt-3 text-xs font-bold text-[#6d5dfc]">
+                      {getCompatibilityText(match.score)}
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="tn-index text-[#8a898d]">Covered</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {match.matchedSkills.length > 0 ? (
+                          match.matchedSkills.slice(0, 5).map((skill) => (
+                            <span key={skill} className="border border-black/15 bg-white px-2 py-1 text-[10px] font-bold">
+                              {skill}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-[#8a898d]">No exact overlap yet</span>
                         )}
-
-                        <div>
-                          <p className="mb-2 text-xs font-medium text-muted-foreground">
-                            Required Skills
-                          </p>
-
-                          {match.skills.length >
-                          0 ? (
-                            <div className="flex flex-wrap gap-2">
-                              {match.skills.map(
-                                (skill) => {
-                                  const matched =
-                                    match.matchedSkills.some(
-                                      (
-                                        matchedSkill
-                                      ) =>
-                                        normalizeSkillName(
-                                          matchedSkill
-                                        ) ===
-                                        normalizeSkillName(
-                                          skill
-                                        )
-                                    );
-
-                                  return (
-                                    <Badge
-                                      key={`${match.id}-${skill}`}
-                                      variant={
-                                        matched
-                                          ? "default"
-                                          : "secondary"
-                                      }
-                                    >
-                                      {skill}
-                                    </Badge>
-                                  );
-                                }
-                              )}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">
-                              No required
-                              skills were
-                              specified for
-                              this job.
-                            </p>
-                          )}
-                        </div>
-
-                        <p className="text-xs text-muted-foreground">
-                          {
-                            match
-                              .matchedSkills
-                              .length
-                          }{" "}
-                          of{" "}
-                          {
-                            match.skills
-                              .length
-                          }{" "}
-                          required skills
-                          matched
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-4 lg:flex-col lg:items-end">
-                        <div className="text-right">
-                          <Badge className="text-sm">
-                            {match.score}% Match
-                          </Badge>
-
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            {getCompatibilityText(
-                              match.score
-                            )}
-                          </p>
-                        </div>
-
-                        <Link
-                          href={`/candidate/jobs/${encodeURIComponent(
-                            match.id
-                          )}`}
-                        >
-                          <Button variant="outline">
-                            View Job
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                    {match.missingSkills.length > 0 && (
+                      <p className="text-[11px] text-[#8a898d]">
+                        Missing: {match.missingSkills.slice(0, 3).join(", ")}
+                        {match.missingSkills.length > 3 ? " +" : ""}
+                      </p>
+                    )}
+                  </div>
+
+                  <Link
+                    href={`/candidate/jobs/${encodeURIComponent(match.id)}`}
+                    className="inline-flex h-10 items-center justify-center gap-2 border border-black/20 px-4 text-xs font-black uppercase tracking-[.1em] transition hover:border-black hover:bg-black hover:text-white"
+                  >
+                    View role <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </article>
               ))}
             </div>
           )}

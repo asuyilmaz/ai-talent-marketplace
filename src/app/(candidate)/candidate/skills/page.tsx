@@ -9,16 +9,9 @@ import {
   Save,
   Trash2,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type CurrentUser = {
   id: string;
@@ -326,168 +319,42 @@ export default function CandidateSkillsPage() {
     );
   }
 
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-7 border-b border-black/15 pb-9 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
-            Skills
-          </h1>
-
-          <p className="mt-2 text-muted-foreground">
-            Add the technologies and professional
-            skills you want employers to see.
-          </p>
+          <p className="tn-index text-[#6d5dfc]">Capability editor / 06</p>
+          <h1 className="mt-4 text-5xl font-black tracking-[-.065em] sm:text-6xl">Build the skill signal behind your matches.</h1>
+          <p className="mt-5 max-w-2xl text-sm leading-6 text-[#66656a]">Keep this list specific and current. TALNIVO uses these exact signals when comparing your profile with live roles.</p>
         </div>
+        <Link href="/candidate/profile" className="inline-flex h-11 items-center gap-2 border border-black/20 px-5 text-xs font-black uppercase tracking-[.12em] hover:bg-black hover:text-white"><ArrowLeft className="h-4 w-4"/> Profile</Link>
+      </section>
 
-        <Link
-          href="/candidate/profile"
-          className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Profile
-        </Link>
-      </div>
+      {saved && <div className="flex items-center gap-2 border border-black bg-black px-4 py-3 text-sm text-white"><CheckCircle2 className="h-4 w-4"/> Skill profile saved.</div>}
+      {error && <div className="border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
 
-      {saved && (
-        <div className="flex items-center gap-2 rounded-md border px-4 py-3 text-sm">
-          <CheckCircle2 className="h-4 w-4" />
-          Skills updated successfully.
-        </div>
-      )}
-
-      {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
-      )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Add Skill
-          </CardTitle>
-
-          <p className="text-sm text-muted-foreground">
-            Enter one skill at a time.
-          </p>
-        </CardHeader>
-
-        <CardContent>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              type="text"
-              value={newSkill}
-              onChange={(event) => {
-                setNewSkill(
-                  event.target.value
-                );
-                setError("");
-              }}
-              onKeyDown={handleKeyDown}
-              placeholder="e.g. React"
-              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
-            />
-
-            <Button
-              type="button"
-              onClick={addSkill}
-              disabled={
-                !newSkill.trim() ||
-                saving ||
-                deletingSkill !== null
-              }
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Skill
-            </Button>
+      <section className="grid gap-8 lg:grid-cols-[.65fr_1.35fr]">
+        <div className="border-t border-black pt-5">
+          <p className="tn-index text-[#8a898d]">Add capability</p>
+          <h2 className="mt-3 text-2xl font-black tracking-[-.04em]">One clear skill at a time.</h2>
+          <div className="mt-6">
+            <label htmlFor="new-skill" className="text-xs font-black uppercase tracking-[.12em]">Skill name</label>
+            <input id="new-skill" name="newSkill" type="text" value={newSkill} onChange={(event)=>{setNewSkill(event.target.value);setError("");}} onKeyDown={handleKeyDown} placeholder="e.g. React" className="mt-3 h-14 w-full border-0 border-b border-black bg-transparent px-0 text-lg font-semibold outline-none placeholder:text-[#aaa9ad]" />
+            <button type="button" onClick={addSkill} disabled={!newSkill.trim()||saving||deletingSkill!==null} className="mt-5 inline-flex h-11 items-center gap-2 border border-black bg-black px-5 text-xs font-black uppercase tracking-[.12em] text-white disabled:opacity-40"><Plus className="h-4 w-4"/> Add skill</button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <CardTitle>
-                Your Skills
-              </CardTitle>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                {skills.length} skill
-                {skills.length === 1 ? "" : "s"}{" "}
-                in your profile.
-              </p>
-            </div>
-
-            <Badge variant="secondary">
-              {skills.length} total
-            </Badge>
+        <div className="border-t border-black pt-5">
+          <div className="flex items-end justify-between">
+            <div><p className="tn-index text-[#8a898d]">Current capability set</p><h2 className="mt-2 text-2xl font-black tracking-[-.04em]">{skills.length} skill{skills.length===1?"":"s"} on profile</h2></div>
+            <span className="font-mono text-xs text-[#8a898d]">{String(skills.length).padStart(2,"0")}</span>
           </div>
-        </CardHeader>
+          {sortedSkills.length>0 ? <div className="mt-5 border-t border-black/15">{sortedSkills.map((skill,index)=><div key={skill} className="grid grid-cols-[44px_1fr_auto] items-center border-b border-black/15 py-4"><span className="font-mono text-[10px] text-[#9b9a9e]">{String(index+1).padStart(2,"0")}</span><span className="font-black">{skill}</span><button type="button" onClick={()=>removeSkill(skill)} disabled={saving||deletingSkill!==null} aria-label={`Remove ${skill}`} className="flex h-9 w-9 items-center justify-center border border-black/15 hover:border-destructive hover:text-destructive disabled:opacity-40"><Trash2 className="h-4 w-4"/></button></div>)}</div> : <div className="mt-6 border-y border-black/15 py-10 text-sm text-[#77767a]">No skills added yet.</div>}
+        </div>
+      </section>
 
-        <CardContent>
-          {sortedSkills.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {sortedSkills.map(
-                (skill) => (
-                  <div
-                    key={skill}
-                    className="flex items-center justify-between gap-3 rounded-lg border p-3"
-                  >
-                    <span className="text-sm font-medium">
-                      {skill}
-                    </span>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      className="h-9 w-9 p-0"
-                      disabled={
-                        deletingSkill !== null ||
-                        saving
-                      }
-                      onClick={() =>
-                        removeSkill(skill)
-                      }
-                      aria-label={`Remove ${skill}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )
-              )}
-            </div>
-          ) : (
-            <div className="rounded-lg border border-dashed p-8 text-center">
-              <p className="font-medium">
-                No skills added yet
-              </p>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Add your first skill above
-                and save your changes.
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={saveSkills}
-          disabled={
-            saving ||
-            deletingSkill !== null
-          }
-        >
-          <Save className="mr-2 h-4 w-4" />
-
-          {saving
-            ? "Saving..."
-            : "Save Skills"}
-        </Button>
+      <div className="flex justify-end border-t border-black/15 pt-6">
+        <button type="button" onClick={saveSkills} disabled={saving||deletingSkill!==null} className="inline-flex h-12 items-center gap-2 border border-[#6d5dfc] bg-[#6d5dfc] px-6 text-xs font-black uppercase tracking-[.12em] text-white disabled:opacity-40"><Save className="h-4 w-4"/>{saving?"Saving...":"Save skill profile"}</button>
       </div>
     </div>
   );

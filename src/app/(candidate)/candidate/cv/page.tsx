@@ -10,15 +10,8 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 
 type CurrentUser = {
   id: string;
@@ -259,192 +252,41 @@ export default function CandidateCVPage() {
     );
   }
 
-  return (
-    <div className="space-y-8">
-      <div className="print:hidden">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">
-              My CV
-            </h1>
-
-            <p className="mt-2 text-muted-foreground">
-              Your CV is generated from your
-              current profile information.
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <Link
-              href="/candidate/profile"
-              className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Profile
-            </Link>
-
-            <Button
-              type="button"
-              onClick={downloadCV}
-            >
-              <Download className="mr-2 h-4 w-4" />
-              Download CV
-            </Button>
-          </div>
+return (
+    <div className="mx-auto max-w-[1380px] space-y-8">
+      <section className="print:hidden grid gap-7 border-b border-black/15 pb-8 lg:grid-cols-[1fr_auto] lg:items-end">
+        <div><p className="tn-index text-[#6d5dfc]">Career document / 07</p><h1 className="mt-4 text-5xl font-black tracking-[-.065em] sm:text-6xl">A CV generated from your live profile.</h1></div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/candidate/profile" className="inline-flex h-11 items-center gap-2 border border-black/20 px-4 text-xs font-black uppercase tracking-[.1em]"><ArrowLeft className="h-4 w-4"/> Profile</Link>
+          <button type="button" onClick={downloadCV} className="inline-flex h-11 items-center gap-2 border border-black bg-black px-5 text-xs font-black uppercase tracking-[.1em] text-white"><Download className="h-4 w-4"/> Print / Save PDF</button>
         </div>
-      </div>
+      </section>
 
-      <div
-        id="candidate-cv"
-        className="space-y-6 print:space-y-4"
-      >
-        <Card>
-          <CardContent className="p-6">
-            <div className="flex flex-col gap-6 sm:flex-row sm:items-center">
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-muted text-3xl font-semibold">
-                {initials}
-              </div>
+      <article className="mx-auto max-w-[980px] border border-black bg-white p-7 text-[#101114] sm:p-12 print:max-w-none print:border-0 print:p-0">
+        <header className="grid gap-8 border-b-2 border-black pb-8 sm:grid-cols-[110px_1fr] sm:items-end">
+          <div className="flex h-24 w-24 items-center justify-center bg-[#101114] text-3xl font-black text-white">{initials}</div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">TALNIVO candidate profile</p>
+            <h1 className="mt-3 text-5xl font-black tracking-[-.06em]">{candidate.name}</h1>
+            <p className="mt-2 text-lg text-[#66656a]">{candidate.experienceTitle || "Candidate"}</p>
+          </div>
+        </header>
 
-              <div className="space-y-3">
-                <div>
-                  <h2 className="text-2xl font-semibold">
-                    {candidate.name}
-                  </h2>
+        <div className="grid gap-10 pt-9 md:grid-cols-[230px_1fr]">
+          <aside className="space-y-8">
+            <section><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#8a898d]">Contact</p><div className="mt-4 space-y-3 text-xs leading-5"><p className="flex gap-2"><Mail className="mt-0.5 h-3.5 w-3.5 shrink-0"/>{candidate.email}</p><p className="flex gap-2"><MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0"/>{candidate.location||"Not specified"}</p>{candidate.phone&&<p className="flex gap-2"><Phone className="mt-0.5 h-3.5 w-3.5 shrink-0"/>{candidate.phone}</p>}</div></section>
+            <section><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#8a898d]">Skills</p><div className="mt-4 flex flex-wrap gap-1.5">{candidate.skills.length>0?candidate.skills.map(skill=><span key={skill} className="border border-black/20 px-2 py-1 text-[10px] font-bold">{skill}</span>):<span className="text-xs text-[#8a898d]">No skills listed</span>}</div></section>
+          </aside>
+          <main className="space-y-10">
+            <section><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#8a898d]">Profile</p><p className="mt-4 text-sm leading-7">{candidate.bio||"No professional summary added yet."}</p></section>
+            <section className="border-t border-black/15 pt-7"><p className="text-[10px] font-black uppercase tracking-[.18em] text-[#8a898d]">Experience</p><div className="mt-4 flex items-start gap-4"><Briefcase className="mt-1 h-4 w-4"/><div><h2 className="text-lg font-black">{candidate.experienceTitle||"Professional Experience"}</h2><p className="mt-1 text-sm text-[#66656a]">{candidate.experienceYears!==null?`${candidate.experienceYears} year${candidate.experienceYears===1?"":"s"} of experience`:"Experience duration not specified"}</p></div></div></section>
+          </main>
+        </div>
+      </article>
 
-                  <p className="text-muted-foreground">
-                    {candidate.experienceTitle ||
-                      "Candidate"}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-4">
-                  <span className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    {candidate.email}
-                  </span>
-
-                  {candidate.location && (
-                    <span className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      {candidate.location}
-                    </span>
-                  )}
-
-                  {candidate.phone && (
-                    <span className="flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      {candidate.phone}
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Professional Summary
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            {candidate.bio ? (
-              <p className="text-sm leading-6 text-muted-foreground">
-                {candidate.bio}
-              </p>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No professional summary has been
-                added yet.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Skills
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            {candidate.skills.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {candidate.skills.map(
-                  (skill) => (
-                    <Badge key={skill}>
-                      {skill}
-                    </Badge>
-                  )
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No skills have been added yet.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
-              Experience
-            </CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            {candidate.experienceTitle ||
-            candidate.experienceYears !==
-              null ? (
-              <div className="space-y-2">
-                <h3 className="font-semibold">
-                  {candidate.experienceTitle ||
-                    "Professional Experience"}
-                </h3>
-
-                {candidate.experienceYears !==
-                  null && (
-                  <p className="text-sm text-muted-foreground">
-                    {candidate.experienceYears}{" "}
-                    year
-                    {candidate.experienceYears ===
-                    1
-                      ? ""
-                      : "s"}{" "}
-                    of experience
-                  </p>
-                )}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No experience information has
-                been added yet.
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card className="print:hidden">
-          <CardContent className="p-6">
-            <p className="text-sm text-muted-foreground">
-              To add or update information in
-              your CV, edit your candidate
-              profile.
-            </p>
-
-            <Link
-              href="/candidate/settings"
-              className="mt-4 inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-              Edit Profile
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="print:hidden grid gap-4 border-y border-black/15 py-5 sm:grid-cols-[1fr_auto] sm:items-center">
+        <p className="text-sm text-[#77767a]">Your CV reflects the information stored in your candidate profile.</p>
+        <Link href="/candidate/settings" className="text-xs font-black uppercase tracking-[.12em] underline underline-offset-4">Edit source profile</Link>
       </div>
     </div>
   );

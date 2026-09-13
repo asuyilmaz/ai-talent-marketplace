@@ -103,7 +103,7 @@ export default function EmployerJobsPage() {
   ).length;
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -115,6 +115,7 @@ export default function EmployerJobsPage() {
             </span>
           </div>
 
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">Hiring inventory / 01</p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight">
             Job Postings
           </h1>
@@ -127,7 +128,7 @@ export default function EmployerJobsPage() {
 
         <Link
           href="/employer/jobs/create"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="inline-flex h-10 items-center justify-center  bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <Plus className="mr-2 h-4 w-4" />
           Create Job

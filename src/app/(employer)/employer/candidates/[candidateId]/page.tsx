@@ -278,7 +278,7 @@ export default function EmployerCandidatePage({
     getInitials(candidate.name);
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       <Link
         href="/employer/candidates"
         className="inline-flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -287,29 +287,41 @@ export default function EmployerCandidatePage({
         Back to Candidates
       </Link>
 
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">
-          Candidate Profile
+      <div className="border-y border-black py-7">
+        <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">
+          Talent record / 06
         </p>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          {candidate.name}
-        </h1>
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <h1 className="text-5xl font-black tracking-[-.06em] sm:text-6xl">
+              {candidate.name}
+            </h1>
 
-        <p className="mt-2 text-muted-foreground">
-          Review the candidate&apos;s
-          professional information.
-        </p>
+            <p className="mt-3 max-w-2xl text-muted-foreground">
+              Review identity, experience and capability signals before moving a candidate through the hiring pipeline.
+            </p>
+          </div>
+
+          <div className="text-left lg:text-right">
+            <p className="text-[10px] font-black uppercase tracking-[.18em] text-muted-foreground">
+              Profile signal
+            </p>
+            <p className="mt-2 text-2xl font-black">
+              {candidate.skills.length.toString().padStart(2, "0")} skills
+            </p>
+          </div>
+        </div>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-muted text-3xl font-semibold">
+      <Card className="rounded-none border-black bg-white shadow-none">
+        <CardContent className="p-0">
+          <div className="grid gap-0 md:grid-cols-[180px_1fr]">
+            <div className="flex min-h-44 items-center justify-center border-b border-black bg-black text-5xl font-black text-white md:border-b-0 md:border-r">
               {initials}
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-5 p-7">
               <div>
                 <h2 className="text-2xl font-semibold">
                   {candidate.name}
@@ -321,7 +333,7 @@ export default function EmployerCandidatePage({
                 </p>
               </div>
 
-              <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+              <div className="grid gap-3 border-t border-black/15 pt-5 text-sm text-muted-foreground sm:grid-cols-3">
                 <span className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   {candidate.email}
@@ -353,8 +365,8 @@ export default function EmployerCandidatePage({
         </CardContent>
       </Card>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <Card>
+      <section className="grid gap-0 border-y border-black md:grid-cols-2">
+        <Card className="rounded-none border-0 bg-transparent shadow-none md:border-r md:border-black">
           <CardHeader>
             <CardTitle>
               About Candidate
@@ -369,7 +381,7 @@ export default function EmployerCandidatePage({
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-none border-0 bg-transparent shadow-none">
           <CardHeader>
             <CardTitle>
               Experience
@@ -403,7 +415,7 @@ export default function EmployerCandidatePage({
         </Card>
       </section>
 
-      <Card>
+      <Card className="rounded-none border-black bg-white shadow-none">
         <CardHeader>
           <CardTitle>
             Skills
@@ -418,7 +430,7 @@ export default function EmployerCandidatePage({
         <CardContent>
           {candidate.skills.length >
           0 ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 border-t border-black/10 pt-5">
               {candidate.skills.map(
                 (skill) => (
                   <Badge
@@ -440,7 +452,7 @@ export default function EmployerCandidatePage({
       </Card>
 
       {candidate.phone && (
-        <Card>
+        <Card className="rounded-none border-black bg-black text-white shadow-none">
           <CardHeader>
             <CardTitle>
               Contact

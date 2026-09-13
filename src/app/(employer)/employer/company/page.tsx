@@ -366,7 +366,10 @@ export default function EmployerCompanyPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">
+            Company identity / 07
+          </p>
+          <h1 className="mt-3 text-5xl font-black tracking-[-.06em] sm:text-6xl">
             Company
           </h1>
 
@@ -392,11 +395,14 @@ export default function EmployerCompanyPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-[1380px] space-y-8">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="grid gap-6 border-y border-black py-7 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#6d5dfc]">
+            Company identity / 07
+          </p>
+          <h1 className="mt-3 text-5xl font-black tracking-[-.06em] sm:text-6xl">
             Company
           </h1>
 
@@ -445,7 +451,7 @@ export default function EmployerCompanyPage() {
       )}
 
       {editing ? (
-        <Card>
+        <Card className="rounded-none border-black bg-white shadow-none">
           <CardHeader>
             <CardTitle>
               Edit Company
@@ -477,7 +483,7 @@ export default function EmployerCompanyPage() {
                     event.target.value
                   )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
                 placeholder="Company name"
               />
             </div>
@@ -525,7 +531,7 @@ export default function EmployerCompanyPage() {
                       event.target.value
                     )
                   }
-                  className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
                   placeholder="https://example.com"
                 />
               </div>
@@ -548,7 +554,7 @@ export default function EmployerCompanyPage() {
                       event.target.value
                     )
                   }
-                  className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                  className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
                   placeholder="Istanbul, Türkiye"
                 />
               </div>
@@ -572,7 +578,7 @@ export default function EmployerCompanyPage() {
                     event.target.value
                   )
                 }
-                className="h-10 w-full rounded-md border bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
+                className="h-12 w-full border-0 border-b border-black bg-transparent px-0 text-sm outline-none focus:border-[#6d5dfc]"
                 placeholder="https://example.com/logo.png"
               />
 
@@ -662,8 +668,8 @@ export default function EmployerCompanyPage() {
           </Card>
 
           {/* About + Contact */}
-          <section className="grid gap-4 md:grid-cols-2">
-            <Card>
+          <section className="grid gap-0 border-y border-black md:grid-cols-2">
+            <Card className="rounded-none border-0 bg-transparent shadow-none md:border-r md:border-black">
               <CardHeader>
                 <CardTitle>
                   About the Company
@@ -678,7 +684,7 @@ export default function EmployerCompanyPage() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="rounded-none border-0 bg-transparent shadow-none">
               <CardHeader>
                 <CardTitle>
                   Contact Information
@@ -735,7 +741,7 @@ export default function EmployerCompanyPage() {
           </section>
 
           {/* Real company statistics */}
-          <Card>
+          <Card className="rounded-none border-black bg-black text-white shadow-none">
             <CardHeader>
               <CardTitle>
                 Open Positions

@@ -12,17 +12,12 @@ import {
   BriefcaseBusiness,
   FileText,
   Sparkles,
-  UserRound,
 } from "lucide-react";
 
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 type CurrentUser = {
@@ -189,22 +184,6 @@ function calculateProfileCompletion(
       fields.length) *
       100
   );
-}
-
-function getMatchLabel(score: number) {
-  if (score >= 80) {
-    return "Strong match";
-  }
-
-  if (score >= 50) {
-    return "Good match";
-  }
-
-  if (score > 0) {
-    return "Partial match";
-  }
-
-  return "No skill match";
 }
 
 export default function CandidateDashboard() {
@@ -580,343 +559,142 @@ export default function CandidateDashboard() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5" />
-
-          <span className="text-sm font-medium">
-            Candidate Overview
-          </span>
+    <div>
+      <section className="grid border-b border-black/10 pb-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-14">
+        <div>
+          <div className="flex items-center gap-3">
+            <span className="tn-index">01 / Overview</span>
+            <span className="h-px w-12 bg-[#5b3df5]" />
+          </div>
+          <h1 className="mt-6 max-w-4xl text-[clamp(3.1rem,6vw,6.5rem)] font-black leading-[.88] tracking-[-.07em] text-[#101114]">
+            {candidate.name.split(" ")[0]},<br />
+            <span className="text-[#5b3df5]">move with signal.</span>
+          </h1>
+          <div className="mt-8 grid max-w-3xl gap-6 border-t border-black/10 pt-5 sm:grid-cols-3">
+            <div>
+              <p className="tn-index">Best role fit</p>
+              <p className="mt-2 text-3xl font-black tracking-[-.04em]">{bestMatch}<span className="text-sm text-[#8a898d]">/100</span></p>
+            </div>
+            <div>
+              <p className="tn-index">Profile depth</p>
+              <p className="mt-2 text-3xl font-black tracking-[-.04em]">{profileCompletion}%</p>
+            </div>
+            <div>
+              <p className="tn-index">Open matches</p>
+              <p className="mt-2 text-3xl font-black tracking-[-.04em]">{matchingJobs}</p>
+            </div>
+          </div>
         </div>
 
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight">
-          Welcome, {candidate.name}
-        </h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Track your profile,
-          opportunities and
-          applications.
-        </p>
-      </div>
-
-      {/* Overview */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Profile Completion
-              </CardTitle>
-
-              <UserRound className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {profileCompletion}%
-            </p>
-
-            <Progress
-              value={
-                profileCompletion
-              }
-              className="mt-4"
-            />
-
-            <p className="mt-3 text-sm text-muted-foreground">
-              Based on your saved
-              profile information.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Best Job Match
-              </CardTitle>
-
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {bestMatch}%
-            </p>
-
-            <Progress
-              value={bestMatch}
-              className="mt-4"
-            />
-
-            <p className="mt-3 text-sm text-muted-foreground">
-              Best skill overlap
-              across published jobs.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Matching Jobs
-              </CardTitle>
-
-              <BriefcaseBusiness className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {matchingJobs}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Jobs sharing at least
-              one of your skills
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between gap-3">
-              <CardTitle className="text-base font-medium">
-                Applications
-              </CardTitle>
-
-              <FileText className="h-5 w-5 text-muted-foreground" />
-            </div>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-4xl font-semibold">
-              {applications.length}
-            </p>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Submitted job
-              applications
-            </p>
-          </CardContent>
-        </Card>
+        <div className="mt-10 border-l-0 border-black/10 lg:mt-0 lg:border-l lg:pl-8">
+          <p className="tn-index">Current profile signal</p>
+          <p className="mt-4 text-sm leading-6 text-[#5f6065]">
+            Your dashboard is not a collection of widgets. It is a live view of where your profile is strongest and what deserves attention next.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-x-4 gap-y-3">
+            {candidate.skills.slice(0, 8).map((skill, index) => (
+              <span key={skill} className="flex items-center gap-2 text-xs font-bold">
+                <span className="font-mono text-[9px] text-[#9a989d]">{String(index + 1).padStart(2, "0")}</span>
+                {skill}
+              </span>
+            ))}
+          </div>
+          <Link href="/candidate/profile" className="mt-8 inline-flex items-center gap-2 border-b border-[#101114] pb-1 text-xs font-black">
+            Refine profile <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </section>
 
-      {/* Recommended Jobs */}
-      <section className="space-y-4">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">
-              Recommended Jobs
-            </h2>
-
-            <p className="mt-1 text-sm text-muted-foreground">
-              Published jobs ranked
-              by overlap with your
-              saved skills.
-            </p>
-          </div>
-
-          <Link href="/candidate/jobs">
-            <Button variant="outline">
-              View All Jobs
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+      <section className="grid border-b border-black/10 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="border-b border-black/10 py-8 lg:border-b-0 lg:border-r lg:pr-8">
+          <p className="tn-index">02 / Opportunity desk</p>
+          <h2 className="mt-4 text-2xl font-black tracking-[-.035em]">What is worth opening now.</h2>
+          <Link href="/candidate/jobs" className="mt-7 inline-flex items-center gap-2 text-xs font-black text-[#5b3df5]">
+            All opportunities <ArrowRight className="h-3.5 w-3.5" />
           </Link>
         </div>
 
-        {recommendedJobs.length ===
-        0 ? (
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-sm text-muted-foreground">
-                No job postings are
-                available yet.
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="space-y-4">
-            {recommendedJobs.map(
-              (job) => (
-                <Card key={job.id}>
-                  <CardContent className="p-6">
-                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                      <div className="space-y-3">
-                        <div>
-                          <h3 className="font-semibold">
-                            {job.title}
-                          </h3>
-
-                          <p className="text-sm text-muted-foreground">
-                            {job.company}
-                          </p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2">
-                          {job.skills
-                            .slice(0, 5)
-                            .map(
-                              (skill) => (
-                                <Badge
-                                  key={`${job.id}-${skill}`}
-                                  variant="secondary"
-                                >
-                                  {skill}
-                                </Badge>
-                              )
-                            )}
-                        </div>
-
-                        <p className="text-sm text-muted-foreground">
-                          {job.workType} ·{" "}
-                          {
-                            job.employmentType
-                          }
-                        </p>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end">
-                        <div className="text-right">
-                          <Badge>
-                            {
-                              job.matchScore
-                            }
-                            % Match
-                          </Badge>
-
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            {getMatchLabel(
-                              job.matchScore
-                            )}
-                          </p>
-                        </div>
-
-                        <Link
-                          href={`/candidate/jobs/${encodeURIComponent(
-                            job.id
-                          )}`}
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                          >
-                            View Job
-                            <ArrowRight className="ml-2 h-4 w-4" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            )}
-          </div>
-        )}
+        <div className="lg:pl-8">
+          {recommendedJobs.length === 0 ? (
+            <p className="py-10 text-sm text-[#77767b]">No published opportunities yet.</p>
+          ) : (
+            recommendedJobs.map((job, index) => (
+              <Link
+                key={job.id}
+                href={`/candidate/jobs/${encodeURIComponent(job.id)}`}
+                className="group grid gap-4 border-b border-black/10 py-7 last:border-b-0 sm:grid-cols-[64px_minmax(0,1fr)_120px] sm:items-center"
+              >
+                <span className="font-mono text-xs text-[#9a989d]">{String(index + 1).padStart(2, "0")}</span>
+                <div>
+                  <h3 className="text-xl font-black tracking-[-.025em] transition group-hover:text-[#5b3df5]">{job.title}</h3>
+                  <p className="mt-1 text-xs text-[#77767b]">{job.company} · {job.workType} · {job.employmentType}</p>
+                  <p className="mt-3 text-xs text-[#5f6065]">{job.skills.slice(0, 4).join(" / ")}</p>
+                </div>
+                <div className="sm:text-right">
+                  <p className="text-3xl font-black tracking-[-.05em]">{job.matchScore}%</p>
+                  <p className="tn-index mt-1">match</p>
+                </div>
+              </Link>
+            ))
+          )}
+        </div>
       </section>
 
-      {/* Applications + Skill Gap */}
-      <section className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Applications
-            </CardTitle>
-
-            <p className="text-sm text-muted-foreground">
-              Your submitted job
-              applications.
-            </p>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <p className="text-3xl font-semibold">
-              {applications.length}
-            </p>
-
-            <Link href="/candidate/applications">
-              <Button
-                variant="outline"
-                className="w-full"
-              >
-                View Applications
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              Skill Gap
-            </CardTitle>
-
-            <p className="text-sm text-muted-foreground">
-              Most requested job
-              skills you have not
-              added yet.
-            </p>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
+      <section className="grid border-b border-black/10 lg:grid-cols-[1fr_1fr]">
+        <div className="border-b border-black/10 py-9 lg:border-b-0 lg:border-r lg:pr-10">
+          <div className="flex items-center justify-between">
+            <p className="tn-index">03 / Market gap</p>
+            <Sparkles className="h-4 w-4 text-[#5b3df5]" />
+          </div>
+          <h2 className="mt-4 text-2xl font-black tracking-[-.035em]">Skills with rising demand.</h2>
+          <div className="mt-8">
             {skillGaps.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
-                No missing skills
-                were found from the
-                current job postings.
-              </p>
-            ) : (
-              skillGaps.map(
-                (skill) => (
-                  <div
-                    key={
-                      skill.name
-                    }
-                  >
-                    <div className="mb-2 flex items-center justify-between gap-3">
-                      <span className="text-sm font-medium">
-                        {
-                          skill.name
-                        }
-                      </span>
+              <p className="text-sm text-[#77767b]">No missing skills found in current postings.</p>
+            ) : skillGaps.map((skill, index) => (
+              <div key={skill.name} className="grid grid-cols-[32px_1fr_auto] items-center gap-4 border-t border-black/10 py-4">
+                <span className="font-mono text-[10px] text-[#9a989d]">0{index + 1}</span>
+                <span className="text-sm font-black">{skill.name}</span>
+                <span className="text-xs font-bold text-[#5b3df5]">{skill.demandPercent}% demand</span>
+              </div>
+            ))}
+          </div>
+          <Link href="/candidate/skill-gap" className="mt-4 inline-flex text-xs font-black">Open skill intelligence →</Link>
+        </div>
 
-                      <span className="text-xs text-muted-foreground">
-                        {
-                          skill.demandPercent
-                        }
-                        % of jobs
-                      </span>
-                    </div>
-
-                    <Progress
-                      value={
-                        skill.demandPercent
-                      }
-                    />
-                  </div>
-                )
-              )
-            )}
-
-            <Link href="/candidate/skill-gap">
-              <Button
-                variant="outline"
-                className="w-full"
-              >
-                View Skill Gap
-                <ArrowRight className="ml-2 h-4 w-4" />
+        <div className="py-9 lg:pl-10">
+          <p className="tn-index">04 / Interview studio</p>
+          <div className="mt-5 border border-[#101114] bg-[#101114] p-7 text-white">
+            <div className="grid gap-8 sm:grid-cols-[1fr_auto] sm:items-end">
+              <div>
+                <p className="text-3xl font-black tracking-[-.045em]">Practice against a real role.</p>
+                <p className="mt-3 max-w-md text-sm leading-6 text-white/55">
+                  Five role-aware questions, scoring, feedback and a persistent session — without pretending to predict hiring.
+                </p>
+              </div>
+              <BriefcaseBusiness className="h-9 w-9 text-[#8b7cff]" />
+            </div>
+            <Link href="/candidate/interview-practice">
+              <Button className="mt-8 bg-[#f3f1ec] text-[#101114] hover:bg-white">
+                Enter studio <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-0 py-8 sm:grid-cols-2">
+        <div className="border-b border-black/10 pb-8 sm:border-b-0 sm:border-r sm:pb-0 sm:pr-10">
+          <FileText className="h-4 w-4 text-[#5b3df5]" />
+          <p className="mt-5 text-5xl font-black tracking-[-.06em]">{applications.length}</p>
+          <p className="mt-2 text-xs font-bold text-[#5f6065]">applications currently in your pipeline</p>
+          <Link href="/candidate/applications" className="mt-5 inline-flex text-xs font-black">Track applications →</Link>
+        </div>
+        <div className="pt-8 sm:pl-10 sm:pt-0">
+          <p className="tn-index">Next move</p>
+          <p className="mt-4 max-w-xl text-xl font-black tracking-[-.03em]">
+            Keep the profile specific, follow the strongest matches, and use the interview studio before applying to high-fit roles.
+          </p>
+        </div>
       </section>
     </div>
   );

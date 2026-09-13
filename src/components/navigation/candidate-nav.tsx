@@ -2,69 +2,43 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  BrainCircuit, Briefcase, ClipboardList, FileText, LayoutDashboard,
+  Settings, Sparkles, Target, User, Wrench,
+} from "lucide-react";
 
 const navItems = [
-  {
-    label: "Dashboard",
-    href: "/candidate/dashboard",
-  },
-  {
-    label: "Profile",
-    href: "/candidate/profile",
-  },
-  {
-    label: "CV",
-    href: "/candidate/cv",
-  },
-  {
-    label: "Skills",
-    href: "/candidate/skills",
-  },
-  {
-    label: "Jobs",
-    href: "/candidate/jobs",
-  },
-  {
-    label: "Matches",
-    href: "/candidate/matches",
-  },
-  {
-    label: "Skill Gap",
-    href: "/candidate/skill-gap",
-  },
-  {
-    label: "Applications",
-    href: "/candidate/applications",
-  },
-  {
-    label: "Interview Practice",
-    href: "/candidate/interview-practice",
-  },
-  {
-    label: "Settings",
-    href: "/candidate/settings",
-  },
+  { label: "Overview", href: "/candidate/dashboard", icon: LayoutDashboard },
+  { label: "Profile", href: "/candidate/profile", icon: User },
+  { label: "CV", href: "/candidate/cv", icon: FileText },
+  { label: "Skills", href: "/candidate/skills", icon: Wrench },
+  { label: "Jobs", href: "/candidate/jobs", icon: Briefcase },
+  { label: "Matches", href: "/candidate/matches", icon: Sparkles },
+  { label: "Skill Gap", href: "/candidate/skill-gap", icon: Target },
+  { label: "Applications", href: "/candidate/applications", icon: ClipboardList },
+  { label: "Interview", href: "/candidate/interview-practice", icon: BrainCircuit },
+  { label: "Settings", href: "/candidate/settings", icon: Settings },
 ];
 
 export function CandidateNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="space-y-1">
+    <nav className="flex items-center gap-1 overflow-x-auto">
       {navItems.map((item) => {
-        const isActive = pathname === item.href;
-
+        const Icon = item.icon;
+        const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
         return (
           <Link
             key={item.href}
             href={item.href}
-            className={`block rounded-md px-3 py-2 text-sm transition-colors ${
-              isActive
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            className={`relative flex h-14 shrink-0 items-center gap-2 px-3 text-xs font-bold transition ${
+              isActive ? "text-[#101114]" : "text-[#77767b] hover:text-[#101114]"
             }`}
           >
-            {item.label}
+            <Icon className={`h-3.5 w-3.5 ${isActive ? "text-[#5b3df5]" : ""}`} />
+            <span>{item.label}</span>
+            {isActive && <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#5b3df5]" />}
           </Link>
         );
       })}

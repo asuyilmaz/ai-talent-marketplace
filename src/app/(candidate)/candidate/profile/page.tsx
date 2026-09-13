@@ -9,15 +9,8 @@ import {
   MapPin,
   Phone,
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 
 type Candidate = {
   id: string;
@@ -226,209 +219,68 @@ export default function CandidateProfilePage() {
     );
   }
 
-  return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-8 border-b border-black/15 pb-9 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">
-            My Profile
+          <p className="tn-index text-[#6d5dfc]">Identity signal / 05</p>
+          <h1 className="mt-4 text-5xl font-black tracking-[-.065em] text-[#101114] sm:text-6xl">
+            Your professional signal, in one place.
           </h1>
-
-          <p className="mt-2 text-muted-foreground">
-            Manage your professional profile and career information.
-          </p>
         </div>
-
-        <Link
-          href="/candidate/settings"
-          className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
-        >
-          Edit Profile
-          <ArrowRight className="ml-2 h-4 w-4" />
+        <Link href="/candidate/settings" className="inline-flex h-11 items-center justify-center gap-2 border border-black bg-black px-5 text-xs font-black uppercase tracking-[.12em] text-white hover:bg-[#6d5dfc]">
+          Edit profile <ArrowRight className="h-4 w-4" />
         </Link>
-      </div>
-
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-muted text-3xl font-semibold">
-              {initials}
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <h2 className="text-2xl font-semibold">
-                  {candidate.name}
-                </h2>
-
-                <p className="text-muted-foreground">
-                  {candidate.experienceTitle || "Candidate"}
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:gap-4">
-                <span className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  {candidate.email}
-                </span>
-
-                <span className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  {candidate.location || "Location not specified"}
-                </span>
-
-                {candidate.phone && (
-                  <span className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />
-                    {candidate.phone}
-                  </span>
-                )}
-
-                <span className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" />
-
-                  {candidate.experienceYears !== null
-                    ? `${candidate.experienceYears} year${
-                        candidate.experienceYears === 1 ? "" : "s"
-                      } experience`
-                    : "Experience not specified"}
-                </span>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <CardTitle>Profile Completion</CardTitle>
-
-              <p className="mt-1 text-sm text-muted-foreground">
-                Complete your profile to improve your job matches.
-              </p>
-            </div>
-
-            <span className="text-2xl font-semibold">
-              {completion}%
-            </span>
-          </div>
-        </CardHeader>
-
-        <CardContent>
-          <Progress value={completion} />
-
-          <p className="mt-3 text-sm text-muted-foreground">
-            {completion === 100
-              ? "Your profile is complete."
-              : "Add missing profile information to reach 100%."}
-          </p>
-        </CardContent>
-      </Card>
-
-      <section className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>About Me</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <p className="text-sm leading-6 text-muted-foreground">
-              {candidate.bio || "No professional summary added yet."}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Experience</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <div className="space-y-2">
-              <h3 className="font-medium">
-                {candidate.experienceTitle ||
-                  "Experience title not specified"}
-              </h3>
-
-              <p className="text-sm text-muted-foreground">
-                {candidate.experienceYears !== null
-                  ? `${candidate.experienceYears} year${
-                      candidate.experienceYears === 1 ? "" : "s"
-                    } of experience`
-                  : "Experience duration not specified"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
       </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Skills</CardTitle>
-
-          <p className="text-sm text-muted-foreground">
-            Technologies and skills included in your profile.
-          </p>
-        </CardHeader>
-
-        <CardContent>
-          {candidate.skills.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {candidate.skills.map((skill) => (
-                <Badge key={skill}>
-                  {skill}
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No skills added yet.
-            </p>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid gap-4 text-sm sm:grid-cols-2">
-            <div>
-              <p className="font-medium">
-                Email
-              </p>
-
-              <p className="mt-1 text-muted-foreground">
-                {candidate.email}
-              </p>
-            </div>
-
-            <div>
-              <p className="font-medium">
-                Phone
-              </p>
-
-              <p className="mt-1 text-muted-foreground">
-                {candidate.phone || "Not specified"}
-              </p>
-            </div>
-
-            <div>
-              <p className="font-medium">
-                Location
-              </p>
-
-              <p className="mt-1 text-muted-foreground">
-                {candidate.location || "Not specified"}
-              </p>
-            </div>
+      <section className="grid gap-0 border border-black lg:grid-cols-[260px_1fr_220px]">
+        <div className="flex min-h-[240px] items-end bg-[#101114] p-6 text-white">
+          <div>
+            <div className="flex h-20 w-20 items-center justify-center border border-white/25 text-3xl font-black tracking-[-.05em]">{initials}</div>
+            <p className="tn-index mt-6 text-white/40">Candidate identity</p>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="border-black p-7 lg:border-l">
+          <h2 className="text-4xl font-black tracking-[-.055em]">{candidate.name}</h2>
+          <p className="mt-2 text-lg text-[#66656a]">{candidate.experienceTitle || "Candidate"}</p>
+          <div className="mt-7 grid gap-3 text-sm sm:grid-cols-2">
+            <span className="flex items-center gap-2"><Mail className="h-4 w-4" />{candidate.email}</span>
+            <span className="flex items-center gap-2"><MapPin className="h-4 w-4" />{candidate.location || "Location not specified"}</span>
+            {candidate.phone && <span className="flex items-center gap-2"><Phone className="h-4 w-4" />{candidate.phone}</span>}
+            <span className="flex items-center gap-2"><Briefcase className="h-4 w-4" />{candidate.experienceYears !== null ? `${candidate.experienceYears} year${candidate.experienceYears === 1 ? "" : "s"} experience` : "Experience not specified"}</span>
+          </div>
+        </div>
+        <div className="border-t border-black p-6 lg:border-l lg:border-t-0">
+          <p className="tn-index text-[#8a898d]">Profile completion</p>
+          <p className="mt-3 text-5xl font-black tracking-[-.06em]">{completion}<span className="text-lg text-[#8a898d]">%</span></p>
+          <div className="mt-5 h-1.5 bg-black/10"><div className="h-full bg-[#6d5dfc]" style={{width:`${completion}%`}} /></div>
+          <p className="mt-4 text-xs leading-5 text-[#77767a]">{completion === 100 ? "Your profile is complete." : "Complete missing fields to strengthen your signal."}</p>
+        </div>
+      </section>
+
+      <section className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
+        <div className="border-t border-black pt-5">
+          <p className="tn-index text-[#8a898d]">About</p>
+          <p className="mt-4 text-lg leading-8 text-[#333238]">{candidate.bio || "No professional summary added yet."}</p>
+        </div>
+        <div className="border-t border-black pt-5">
+          <div className="flex items-end justify-between gap-4">
+            <div><p className="tn-index text-[#8a898d]">Capability set</p><h2 className="mt-2 text-2xl font-black tracking-[-.04em]">Skills employers can match</h2></div>
+            <Link href="/candidate/skills" className="text-xs font-black uppercase tracking-[.12em] underline underline-offset-4">Manage</Link>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {candidate.skills.length > 0 ? candidate.skills.map((skill)=><span key={skill} className="border border-black/15 bg-white px-3 py-1.5 text-xs font-bold">{skill}</span>) : <span className="text-sm text-[#8a898d]">No skills added yet.</span>}
+          </div>
+        </div>
+      </section>
+
+      <section className="grid border-y border-black/15 sm:grid-cols-3">
+        {[
+          ["Role", candidate.experienceTitle || "Not specified"],
+          ["Experience", candidate.experienceYears !== null ? `${candidate.experienceYears} year${candidate.experienceYears === 1 ? "" : "s"}` : "Not specified"],
+          ["Location", candidate.location || "Not specified"],
+        ].map(([label,value],index)=><div key={label} className={`${index>0?"border-t sm:border-l sm:border-t-0 border-black/15":""} py-5 sm:px-5`}><p className="tn-index text-[#8a898d]">{label}</p><p className="mt-2 font-black">{value}</p></div>)}
+      </section>
     </div>
   );
 }

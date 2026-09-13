@@ -4,13 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Save } from "lucide-react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
 type CurrentUser = {
   id: string;
@@ -354,261 +347,41 @@ export default function CandidateSettingsPage() {
     );
   }
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-semibold tracking-tight">
-          Profile Settings
-        </h1>
+return (
+    <div className="mx-auto max-w-[1380px] space-y-10">
+      <section className="grid gap-8 border-b border-black/15 pb-9 lg:grid-cols-[1fr_360px] lg:items-end">
+        <div><p className="tn-index text-[#6d5dfc]">Profile controls / 08</p><h1 className="mt-4 text-5xl font-black tracking-[-.065em] sm:text-6xl">Edit the data behind your professional signal.</h1></div>
+        <p className="text-sm leading-6 text-[#66656a]">Changes here update your profile, CV, and the information TALNIVO uses across your candidate workspace.</p>
+      </section>
 
-        <p className="mt-2 text-muted-foreground">
-          Update the information shown
-          in your candidate profile and CV.
-        </p>
-      </div>
+      {saved&&<div className="flex items-center gap-2 border border-black bg-black px-4 py-3 text-sm text-white"><CheckCircle2 className="h-4 w-4"/> Changes saved successfully.</div>}
+      {error&&<div className="border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div>}
 
-      {saved && (
-        <div className="flex items-center gap-2 rounded-md border px-4 py-3 text-sm">
-          <CheckCircle2 className="h-4 w-4" />
-          Changes saved successfully.
+      <section className="grid gap-10 lg:grid-cols-[240px_1fr]">
+        <div><p className="tn-index text-[#8a898d]">01 / Identity</p><h2 className="mt-3 text-xl font-black tracking-[-.035em]">Personal information</h2><p className="mt-2 text-xs leading-5 text-[#77767a]">Core details visible across your candidate profile.</p></div>
+        <div className="grid gap-x-6 gap-y-7 md:grid-cols-2">
+          {[
+            ["name","Full name",name,setName,"text"],
+            ["email","Email",email,setEmail,"email"],
+            ["phone","Phone",phone,setPhone,"text"],
+            ["location","Location",location,setLocation,"text"],
+          ].map(([id,label,value,setter,type])=><div key={id as string}><label htmlFor={id as string} className="text-[10px] font-black uppercase tracking-[.16em] text-[#77767a]">{label as string}</label><input id={id as string} name={id as string} type={type as string} value={value as string} onChange={(event)=>(setter as React.Dispatch<React.SetStateAction<string>>)(event.target.value)} className="mt-2 h-12 w-full border-0 border-b border-black bg-transparent px-0 text-base font-semibold outline-none"/></div>)}
+          <div className="md:col-span-2"><label htmlFor="bio" className="text-[10px] font-black uppercase tracking-[.16em] text-[#77767a]">Professional summary</label><textarea id="bio" name="bio" value={bio} onChange={(event)=>setBio(event.target.value)} rows={5} className="mt-2 w-full border border-black/20 bg-white p-4 text-sm leading-6 outline-none"/></div>
         </div>
-      )}
+      </section>
 
-      {error && (
-        <div className="rounded-md border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-          {error}
+      <section className="grid gap-10 border-t border-black/15 pt-9 lg:grid-cols-[240px_1fr]">
+        <div><p className="tn-index text-[#8a898d]">02 / Career</p><h2 className="mt-3 text-xl font-black tracking-[-.035em]">Professional information</h2><p className="mt-2 text-xs leading-5 text-[#77767a]">These fields shape your CV and matching context.</p></div>
+        <div className="grid gap-x-6 gap-y-7 md:grid-cols-2">
+          <div><label htmlFor="experienceTitle" className="text-[10px] font-black uppercase tracking-[.16em] text-[#77767a]">Experience title</label><input id="experienceTitle" name="experienceTitle" type="text" value={experienceTitle} onChange={(event)=>setExperienceTitle(event.target.value)} placeholder="e.g. Frontend Developer" className="mt-2 h-12 w-full border-0 border-b border-black bg-transparent px-0 text-base font-semibold outline-none"/></div>
+          <div><label htmlFor="experienceYears" className="text-[10px] font-black uppercase tracking-[.16em] text-[#77767a]">Years of experience</label><input id="experienceYears" name="experienceYears" type="number" min="0" step="1" value={experienceYears} onChange={(event)=>setExperienceYears(event.target.value)} className="mt-2 h-12 w-full border-0 border-b border-black bg-transparent px-0 text-base font-semibold outline-none"/></div>
+          <div className="md:col-span-2"><label htmlFor="skills" className="text-[10px] font-black uppercase tracking-[.16em] text-[#77767a]">Skills</label><textarea id="skills" name="skills" value={skills} onChange={(event)=>setSkills(event.target.value)} rows={3} placeholder="React, TypeScript, Next.js" className="mt-2 w-full border border-black/20 bg-white p-4 text-sm outline-none"/><p className="mt-2 text-[11px] text-[#8a898d]">Separate skills with commas. For easier skill-by-skill editing, use the Skills page.</p></div>
         </div>
-      )}
+      </section>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Personal Information
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-2">
-              <label
-                htmlFor="name"
-                className="text-sm font-medium"
-              >
-                Full Name
-              </label>
-
-              <input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(event) =>
-                  setName(
-                    event.target.value
-                  )
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="email"
-                className="text-sm font-medium"
-              >
-                Email
-              </label>
-
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(event) =>
-                  setEmail(
-                    event.target.value
-                  )
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="phone"
-                className="text-sm font-medium"
-              >
-                Phone
-              </label>
-
-              <input
-                id="phone"
-                type="text"
-                value={phone}
-                onChange={(event) =>
-                  setPhone(
-                    event.target.value
-                  )
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="location"
-                className="text-sm font-medium"
-              >
-                Location
-              </label>
-
-              <input
-                id="location"
-                type="text"
-                value={location}
-                onChange={(event) =>
-                  setLocation(
-                    event.target.value
-                  )
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="bio"
-              className="text-sm font-medium"
-            >
-              Professional Summary
-            </label>
-
-            <textarea
-              id="bio"
-              value={bio}
-              onChange={(event) =>
-                setBio(
-                  event.target.value
-                )
-              }
-              rows={5}
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Professional Information
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="space-y-2">
-              <label
-                htmlFor="experienceTitle"
-                className="text-sm font-medium"
-              >
-                Experience Title
-              </label>
-
-              <input
-                id="experienceTitle"
-                type="text"
-                value={
-                  experienceTitle
-                }
-                onChange={(event) =>
-                  setExperienceTitle(
-                    event.target.value
-                  )
-                }
-                placeholder="e.g. Frontend Developer"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label
-                htmlFor="experienceYears"
-                className="text-sm font-medium"
-              >
-                Years of Experience
-              </label>
-
-              <input
-                id="experienceYears"
-                type="number"
-                min="0"
-                step="1"
-                value={
-                  experienceYears
-                }
-                onChange={(event) =>
-                  setExperienceYears(
-                    event.target.value
-                  )
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <label
-              htmlFor="skills"
-              className="text-sm font-medium"
-            >
-              Skills
-            </label>
-
-            <textarea
-              id="skills"
-              value={skills}
-              onChange={(event) =>
-                setSkills(
-                  event.target.value
-                )
-              }
-              rows={3}
-              placeholder="React, TypeScript, Next.js"
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none"
-            />
-
-            <p className="text-xs text-muted-foreground">
-              Separate skills with commas.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() =>
-            router.push(
-              "/candidate/profile"
-            )
-          }
-          disabled={saving}
-        >
-          Cancel
-        </Button>
-
-        <Button
-          type="button"
-          onClick={saveProfile}
-          disabled={saving}
-        >
-          <Save className="mr-2 h-4 w-4" />
-
-          {saving
-            ? "Saving..."
-            : "Save Changes"}
-        </Button>
+      <div className="flex flex-col-reverse gap-3 border-t border-black/15 pt-7 sm:flex-row sm:justify-end">
+        <button type="button" onClick={()=>router.push("/candidate/profile")} disabled={saving} className="h-11 border border-black/20 px-5 text-xs font-black uppercase tracking-[.12em] disabled:opacity-40">Cancel</button>
+        <button type="button" onClick={saveProfile} disabled={saving} className="inline-flex h-11 items-center justify-center gap-2 border border-[#6d5dfc] bg-[#6d5dfc] px-6 text-xs font-black uppercase tracking-[.12em] text-white disabled:opacity-40"><Save className="h-4 w-4"/>{saving?"Saving...":"Save changes"}</button>
       </div>
     </div>
   );
